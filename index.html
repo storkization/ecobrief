@@ -651,7 +651,8 @@
 
 <script>
 /* ═══════════ CONFIG ═══════════ */
-const PROXY = url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+const PROXY = url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`;
+const PROXY2 = url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
 
 const FEEDS = {
   korea: [
@@ -731,9 +732,16 @@ async function fetchNews(type) {
   const items = [];
   await Promise.all(FEEDS[type].map(async f => {
     try {
-      const r = await fetch(PROXY(f.url), { signal:AbortSignal.timeout(9000) });
-      const j = await r.json();
-      const xml = new DOMParser().parseFromString(j.contents, 'text/xml');
+      let text;
+      try {
+        const r = await fetch(PROXY(f.url), { signal:AbortSignal.timeout(8000) });
+        text = await r.text();
+      } catch {
+        const r2 = await fetch(PROXY2(f.url), { signal:AbortSignal.timeout(8000) });
+        const j2 = await r2.json();
+        text = j2.contents;
+      }
+      const xml = new DOMParser().parseFromString(text, 'text/xml');
       xml.querySelectorAll('item').forEach(el => {
         const title = el.querySelector('title')?.textContent?.trim();
         const link  = el.querySelector('link')?.textContent?.trim()

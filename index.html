@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>이코노미 브리핑</title>
+
+  <!-- iOS PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="이코노미">
+  <meta name="theme-color" content="#0B0B12">
+
+  <!-- Android PWA (manifest.json 별도 필요) -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Noto+Serif+KR:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:        #0B0B12;
+      --bg-card:   #13131E;
+      --bg-card2:  #1A1A28;
+      --accent:    #E8A020;
+      --accent-dim: rgba(232,160,32,0.12);
+      --blue:      #5AA8FF;
+      --blue-dim:  rgba(90,168,255,0.12);
+      --green:     #3ECF6B;
+      --red:       #F0494A;
+      --text:      #EAE9E1;
+      --text-muted:#8A8880;
+      --text-dim:  #4A4A48;
+      --border:    rgba(255,255,255,0.07);
+      --radius:    14px;
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+    html { height:100%; }
+
+    body {
+      height:100%;
+      background:var(--bg);
+      color:var(--text);
+      font-family:'Noto Serif KR', serif;
+      overflow:hidden;
+      /* grain texture */
+      position:relative;
+    }
+    body::before {
+      content:'';
+      position:fixed; inset:0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events:none; z-index:0;
+    }
+
+    #app {
+      position:relative; z-index:1;
+      display:flex;
+      flex-direction:column;
+      height:100vh;
+      height:100dvh;
+      max-width:480px;
+      margin:0 auto;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      padding: calc(env(safe-area-inset-top, 44px) + 12px) 20px 14px;
+      background:var(--bg);
+      border-bottom:1px solid var(--border);
+      flex-shrink:0;
+    }
+    .header-top { display:flex; justify-content:space-between; align-items:flex-end; }
+    .app-logo {
+      font-family:'Playfair Display', serif;
+      font-size:21px; font-weight:900;
+      letter-spacing:-0.5px;
+      color:var(--text);
+    }
+    .app-logo em { color:var(--accent); font-style:normal; }
+    .header-right { text-align:right; }
+    .header-date {
+      font-family:'IBM Plex Mono', monospace;
+      font-size:9px; color:var(--text-muted);
+      line-height:1.6;
+    }
+    .live-dot {
+      display:inline-flex; align-items:center; gap:4px;
+      font-family:'IBM Plex Mono', monospace;
+      font-size:9px; color:var(--green);
+    }
+    .live-dot::before {
+      content:''; width:5px; height:5px;
+      background:var(--green); border-radius:50%;
+      animation:blink 2s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* ── TABS ── */
+    .tabs {
+      display:flex;
+      background:var(--bg);
+      border-bottom:1px solid var(--border);
+      flex-shrink:0;
+    }
+    .tab-btn {
+      flex:1; padding:10px 2px;
+      background:none; border:none;
+      color:var(--text-muted);
+      font-family:'Noto Serif KR', serif;
+      font-size:12px; cursor:pointer;
+      position:relative;
+      transition:color 0.2s;
+    }
+    .tab-btn.active { color:var(--accent); }
+    .tab-btn.active::after {
+      content:''; position:absolute;
+      bottom:0; left:15%; right:15%; height:2px;
+      background:var(--accent);
+      border-radius:2px 2px 0 0;
+    }
+
+    /* ── CONTENT ── */
+    .content {
+      flex:1; overflow-y:auto; overflow-x:hidden;
+      -webkit-overflow-scrolling:touch;
+      padding-bottom:calc(env(safe-area-inset-bottom, 0px) + 20px);
+    }
+    .content::-webkit-scrollbar { width:2px; }
+    .content::-webkit-scrollbar-thumb { background:var(--border); }
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
+
+    /* ── SKELETON ── */
+    .skeleton {
+      background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-card2) 50%, var(--bg-card) 75%);
+      background-size:200% 100%;
+      animation:shimmer 1.5s infinite;
+      border-radius:6px;
+    }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    /* ── LOADING ── */
+    .loading-wrap {
+      padding:48px; text-align:center;
+      color:var(--text-muted); font-size:13px;
+    }
+    .dots span {
+      display:inline-block;
+      width:5px; height:5px;
+      background:var(--accent); border-radius:50%;
+      margin:0 2px;
+      animation:bounce 1s ease-in-out infinite;
+    }
+    .dots span:nth-child(2){animation-delay:.15s}
+    .dots span:nth-child(3){animation-delay:.3s}
+    @keyframes bounce{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-5px);opacity:1}}
+
+    /* ════════════ NEWS TAB ════════════ */
+    .news-filter {
+      display:flex; gap:8px;
+      padding:14px 16px 10px;
+    }
+    .filter-btn {
+      padding:6px 16px;
+      border:1px solid var(--border);
+      border-radius:20px;
+      background:none;
+      color:var(--text-muted);
+      font-family:'Noto Serif KR', serif;
+      font-size:12px; cursor:pointer;
+      transition:all .2s;
+    }
+    .filter-btn.active {
+      background:var(--accent);
+      border-color:var(--accent);
+      color:#000; font-weight:700;
+    }
+
+    /* Hero */
+    .news-hero {
+      margin:0 16px 12px;
+      border-radius:var(--radius);
+      overflow:hidden;
+      background:var(--bg-card);
+      cursor:pointer;
+      border:1px solid var(--border);
+    }
+    .news-hero-img {
+      width:100%; height:185px;
+      object-fit:cover; display:block;
+    }
+    .hero-placeholder {
+      height:185px;
+      background:linear-gradient(135deg,#14142A 0%,#0F2040 50%,#0A1020 100%);
+      display:flex; align-items:center; justify-content:center;
+      font-size:52px; opacity:.25;
+    }
+    .news-hero-body { padding:16px; }
+    .news-source-tag {
+      font-family:'IBM Plex Mono', monospace;
+      font-size:9px; font-weight:600;
+      color:var(--accent);
+      text-transform:uppercase; letter-spacing:1.5px;
+      margin-bottom:8px;
+    }
+    .news-hero-title {
+      font-family:'Playfair Display', serif;
+      font-size:19px; font-weight:700;
+      line-height:1.35; color:var(--text);
+    }
+    .news-hero-time {
+      font-family:'IBM Plex Mono', monospace;
+      font-size:9px; color:var(--text-muted);
+      margin-top:10px;
+    }
+
+    /* Sub-hero */
+    .news-sub {
+      margin:0 16px 4px;
+      padding:15px;
+      background:var(--bg-card);
+      border-radius:var(--radius);
+      cursor:pointer;
+      border-left:3px solid var(--accent);
+      display:flex; gap:12px; align-items:flex-start;
+    }
+    .news-sub-body { flex:1; }
+    .news-sub-title {
+      font-size:14px; font-weight:600;
+      line-height:1.45; color:var(--text);
+      margin-bottom:5px;
+    }
+    .news-sub-meta {
+      font-family:'IBM Plex Mono', monospace;
+      font-size:9px; color:var(--text-muted);
+      display:flex; gap:10px;
+    }
+
+    /* List */
+    .section-label {
+      padding:14px 16px 8px;
+      font-family:'IBM Plex Mono', monospace;
+      font-size:9px; color:var(--text-dim);
+      text-transform:uppercase; letter-spacing:2px;
+    }
+    .news-item {
+      display:flex; gap:10px;
+      padding:13px 16px;
+      border-bottom:1px solid var(--border);
+      align-items:flex-start;
+    }
+    .news-num {
+      font-family:'IBM Plex Mono', monospace;
+      font-size:11px; color:var(--text-dim);
+      min-width:18px; padding-top:2px;
+    }
+    .news-body { flex:1; cursor:pointer; }
+    .news-title {
+      font-size:13.5px; line-height:1.5;
+      color:var(--text); margin-bottom:4px;
+    }
+    .news-meta {
+      font-family:'IBM Plex Mono', monospace;
+      font-size:9px; color:var(--text-muted);
+      display:flex; gap:8px;
+    }
+    .ai-pill {
+      padding:4px 10px;
+      background:var(--accent-dim);
+      border:1px solid rgba(232,160,32,.25);
+      border-radius:20px;
+      color:var(--accent);
+      font-size:10px;
+      font-family:'IBM Plex Mono', monospace;
+      cursor:pointer; white-space:nowrap;
+      flex-shrink:0; align-self:center;
+      transition:all .2s;
+    }
+    .ai-pill:active { background:var(--accent); color:#000; }
+
+    /* ════════════ STOCKS TAB ════════════ */
+    .market-grid {
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:10px; padding:16px;
+    }
+    .idx-card {
+      background:var(--bg-card);
+      border-radius:12px; padding:14px;
+      border:1px solid var(--border);
+    }
+    .idx-name {
+      font-family:'IBM Plex Mono', monospace;
+      font-size:9px; color:var(--text-muted);
+      text-transform:uppercase; letter-spacing:1px;
+      margin-bottom:6px;
+      display:flex; align-items:center; gap:6px;
+    }
+    .market-tag {
+      font-size:8px; padding:1px 5px;
+      border-radius:3px;
+    }
+    .tag-kr { background:var(--accent-dim); color:var(--accent); }
+    .tag-us { background:var(--blue-dim); color:var(--blue); }
+    .idx-val {
+      font-family:'IBM Plex Mono', monospace;
+      font-size:20px; font-weight:600;
+      color:var(--text); letter-spacing:-0.5px;
+    }
+    .idx-chg {
+      font-family:'IBM Plex Mono', monospace;
+      font-size:11px; margin-top:4px;
+    }
+    .up   { color:var(--green); }
+    .down { color:var(--red); }
+    .flat { color:var(--text-muted); }
+
+    .stock-row {
+      display:flex; align-items:center;
+      padding:13px 16px;
+      border-bottom:1px solid var(--border);
+      gap:12px;
+    }
+    .stock-icon {
+      width:36px; height:36px;
+      border-radius:10px;
+      background:var(--bg-card2);
+      display:flex; align-items:center; justify-content:center;
+      font-size:16px; flex-shrink:0;
+    }
+    .stock-info { flex:1; }
+    .stock-ticker {
+      font-family:'IBM Plex Mono', monospace;
+      font-size:13px; font-weight:600; color:var(--text);
+    }
+    .stock-name { font-size:11px; color:var(--text-muted); margin-top:2px; }
+    .stock-right { text-align:right; }
+    .stock-price {
+      font-family:'IBM Plex Mono', monospace;
+      font-size:14px; font-weight:600; color:var(--text);
+    }
+    .badge {
+      display:inline-block;
+      padding:2px 7px; border-radius:5px;
+      font-family:'IBM Plex Mono', monospace;
+      font-size:10px; font-weight:600;
+      margin-top:3px;
+    }
+    .badge.up   { background:rgba(62,207,107,.13); color:var(--green); }
+    .badge.down { background:rgba(240,73,74,.13);  color:var(--red); }
+    .badge.flat { background:var(--bg-card2); color:var(--text-muted); }
+
+    /* ════════════ FX TAB ════════════ */
+    .fx-hero {
+      margin:16px; padding:22px;
+      background:var(--bg-card);
+      border-radius:var(--radius);
+      border:1px solid var(--border);
+    }
+    .fx-hero-label {
+      font-family:'IBM Plex Mono', monospace;
+      font-size:9px; color:var(--text-muted);
+      text-transform:uppercase; letter-spacing:1.5px;
+      margin-bottom:4px;
+    }
+    .fx-big {
+      font-family:'IBM Plex Mono', monospace;
+      font-size:44px; font-weight:600;
+      color:var(--text); letter-spacing:-2px;
+      line-height:1;
+    }
+    .fx-sub {
+      font-family:'IBM Plex Mono', monospace;
+      font-size:11px; color:var(--text-muted);
+      margin-top:8px;
+    }
+    .fx-updated {
+      font-family:'IBM Plex Mono', monospace;
+      font-size:9px; color:var(--text-dim);
+      margin-top:12px;
+    }
+    .fx-grid {
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:10px; padding:0 16px 16px;
+    }
+    .fx-card {
+      background:var(--bg-card);
+      border-radius:12px; padding:14px;
+      border:1px solid var(--border);
+    }
+    .fx-pair-label {
+      font-family:'IBM Plex Mono', monospace;
+      font-size:9px; color:var(--text-muted);
+      margin-bottom:5px; display:flex; align-items:center; gap:5px;
+    }
+    .fx-rate {
+      font-family:'IBM Plex Mono', monospace;
+      font-size:20px; font-weight:600; color:var(--text);
+    }
+    .fx-unit {
+      font-family:'IBM Plex Mono', monospace;
+      font-size:10px; color:var(--text-dim); margin-top:3px;
+    }
+
+    /* ════════════ AI TAB ════════════ */
+    .ai-top {
+      padding:28px 16px 20px;
+      text-align:center;
+    }
+    .ai-orb {
+      width:68px; height:68px;
+      margin:0 auto 18px;
+      background: conic-gradient(from 180deg, var(--accent), #FF6B35, var(--accent));
+      border-radius:20px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:28px;
+      box-shadow:0 8px 32px rgba(232,160,32,.2);
+    }
+    .ai-title {
+      font-family:'Playfair Display', serif;
+      font-size:22px; font-weight:900;
+      color:var(--text); margin-bottom:8px;
+    }
+    .ai-desc {
+      font-size:13px; color:var(--text-muted);
+      line-height:1.6;
+    }
+
+    .ai-section {
+      margin:0 16px 14px;
+      background:var(--bg-card);
+      border-radius:var(--radius);
+      border:1px solid var(--border);
+      overflow:hidden;
+    }
+    .ai-section-head {
+      padding:12px 16px;
+      font-family:'IBM Plex Mono', monospace;
+      font-size:9px; color:var(--text-dim);
+      text-transform:uppercase; letter-spacing:2px;
+      border-bottom:1px solid var(--border);
+    }
+    .ai-input-wrap { padding:14px 16px; }
+    .ai-key-input {
+      width:100%;
+      background:var(--bg);
+      border:1px solid var(--border);
+      border-radius:8px;
+      padding:10px 14px;
+      color:var(--text);
+      font-family:'IBM Plex Mono', monospace;
+      font-size:12px; outline:none;
+    }
+    .ai-key-input:focus { border-color:var(--accent); }
+    .ai-hint {
+      font-size:11px; color:var(--text-dim);
+      margin-top:8px; line-height:1.5;
+    }
+    .ai-hint a { color:var(--accent); }
+
+    .ai-btn {
+      display:block;
+      width:calc(100% - 32px);
+      margin:0 16px 16px;
+      padding:17px;
+      background:var(--accent);
+      border:none; border-radius:var(--radius);
+      color:#000;
+      font-family:'Noto Serif KR', serif;
+      font-size:15px; font-weight:700;
+      cursor:pointer; text-align:center;
+      transition:all .2s;
+      letter-spacing:-0.3px;
+    }
+    .ai-btn:active { transform:scale(.98); opacity:.9; }
+    .ai-btn:disabled { opacity:.45; cursor:not-allowed; transform:none; }
+
+    .ai-result {
+      margin:0 16px 16px;
+      padding:20px;
+      background:var(--bg-card);
+      border-radius:var(--radius);
+      border:1px solid rgba(232,160,32,.2);
+      display:none;
+    }
+    .ai-result.show { display:block; }
+    .ai-result-head {
+      display:flex; align-items:center; gap:8px;
+      font-family:'IBM Plex Mono', monospace;
+      font-size:9px; color:var(--accent);
+      text-transform:uppercase; letter-spacing:2px;
+      margin-bottom:14px;
+    }
+    .ai-result-head::before {
+      content:''; width:6px; height:6px;
+      background:var(--accent); border-radius:50%;
+      flex-shrink:0;
+    }
+    .ai-result-text {
+      font-size:14px; line-height:1.75;
+      color:var(--text); white-space:pre-line;
+    }
+
+    /* ── MODAL ── */
+    .modal-backdrop {
+      display:none; position:fixed; inset:0;
+      background:rgba(0,0,0,.75);
+      z-index:200;
+      max-width:480px; margin:0 auto;
+      align-items:flex-end;
+    }
+    .modal-backdrop.open { display:flex; }
+    .modal-sheet {
+      background:var(--bg-card);
+      border-radius:20px 20px 0 0;
+      padding:20px 20px calc(env(safe-area-inset-bottom,0px) + 20px);
+      width:100%; max-height:72vh;
+      overflow-y:auto;
+    }
+    .modal-handle {
+      width:38px; height:4px;
+      background:var(--bg-card2);
+      border-radius:2px; margin:0 auto 20px;
+    }
+    .modal-title {
+      font-family:'Playfair Display', serif;
+      font-size:17px; font-weight:700;
+      color:var(--text); margin-bottom:16px;
+      line-height:1.35;
+    }
+    .modal-body {
+      font-size:14px; line-height:1.75;
+      color:var(--text); white-space:pre-line;
+    }
+
+    /* error */
+    .err-msg {
+      margin:0 16px;
+      padding:12px 16px;
+      background:rgba(240,73,74,.08);
+      border:1px solid rgba(240,73,74,.2);
+      border-radius:10px;
+      font-size:12px; color:var(--red);
+      text-align:center;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-top">
+      <div class="app-logo">eco<em>brief</em></div>
+      <div class="header-right">
+        <div class="live-dot">LIVE</div>
+        <div class="header-date" id="headerDate"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="news">📰 뉴스</button>
+    <button class="tab-btn" data-tab="stocks">📈 주식</button>
+    <button class="tab-btn" data-tab="fx">💱 환율</button>
+    <button class="tab-btn" data-tab="ai">✨ AI</button>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ▸ NEWS -->
+    <div class="tab-panel active" id="tab-news">
+      <div class="news-filter">
+        <button class="filter-btn active" data-filter="korea" onclick="setFilter('korea')">🇰🇷 한국</button>
+        <button class="filter-btn" data-filter="intl"  onclick="setFilter('intl')">🌐 국제</button>
+      </div>
+      <div id="news-content">
+        <div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div><p style="margin-top:14px">뉴스 불러오는 중...</p></div>
+      </div>
+    </div>
+
+    <!-- ▸ STOCKS -->
+    <div class="tab-panel" id="tab-stocks">
+      <div class="market-grid" id="market-indices">
+        <!-- skeleton x4 -->
+        <div class="idx-card"><div class="idx-name">KOSPI</div><div class="idx-val skeleton" style="height:26px;width:90px;margin-bottom:6px"></div><div class="idx-chg skeleton" style="height:12px;width:60px"></div></div>
+        <div class="idx-card"><div class="idx-name">KOSDAQ</div><div class="idx-val skeleton" style="height:26px;width:90px;margin-bottom:6px"></div><div class="idx-chg skeleton" style="height:12px;width:60px"></div></div>
+        <div class="idx-card"><div class="idx-name">NASDAQ</div><div class="idx-val skeleton" style="height:26px;width:90px;margin-bottom:6px"></div><div class="idx-chg skeleton" style="height:12px;width:60px"></div></div>
+        <div class="idx-card"><div class="idx-name">S&P 500</div><div class="idx-val skeleton" style="height:26px;width:90px;margin-bottom:6px"></div><div class="idx-chg skeleton" style="height:12px;width:60px"></div></div>
+      </div>
+      <div id="stocks-list"></div>
+    </div>
+
+    <!-- ▸ FX -->
+    <div class="tab-panel" id="tab-fx">
+      <div class="fx-hero">
+        <div class="fx-hero-label">🇺🇸 USD / KRW</div>
+        <div class="fx-big" id="usdkrw">—</div>
+        <div class="fx-sub" id="usdkrw-sub">로딩 중...</div>
+        <div class="fx-updated" id="fx-time"></div>
+      </div>
+      <div class="fx-grid" id="fx-grid"></div>
+    </div>
+
+    <!-- ▸ AI -->
+    <div class="tab-panel" id="tab-ai">
+      <div class="ai-top">
+        <div class="ai-orb">✨</div>
+        <div class="ai-title">AI 경제 브리핑</div>
+        <div class="ai-desc">오늘의 주요 뉴스를 AI가<br>핵심만 요약해 드립니다</div>
+      </div>
+
+      <div class="ai-section">
+        <div class="ai-section-head">Anthropic API Key</div>
+        <div class="ai-input-wrap">
+          <input type="password" class="ai-key-input" id="apiKey"
+            placeholder="sk-ant-api03-..." oninput="saveKey(this.value)">
+          <div class="ai-hint">
+            💡 <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>에서 발급<br>
+            키는 이 기기에만 저장되며 외부로 전송되지 않습니다
+          </div>
+        </div>
+      </div>
+
+      <button class="ai-btn" id="briefBtn" onclick="genBriefing()">
+        ✨ 오늘의 경제 브리핑 생성
+      </button>
+
+      <div class="ai-result" id="aiResult">
+        <div class="ai-result-head">AI BRIEFING</div>
+        <div class="ai-result-text" id="aiText"></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /app -->
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modal" onclick="closeModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalTitle">AI 분석</div>
+    <div class="modal-body"  id="modalBody"><div class="dots"><span></span><span></span><span></span></div></div>
+  </div>
+</div>
+
+<script>
+/* ═══════════ CONFIG ═══════════ */
+const PROXY = url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+
+const FEEDS = {
+  korea: [
+    { name:'한국경제', url:'https://www.hankyung.com/feed/economy' },
+    { name:'연합뉴스', url:'https://www.yna.co.kr/rss/economy.xml' },
+    { name:'매일경제', url:'https://rss.mk.co.kr/economy' },
+  ],
+  intl: [
+    { name:'연합뉴스',  url:'https://www.yna.co.kr/rss/international.xml' },
+    { name:'BBC코리아', url:'https://feeds.bbci.co.uk/korean/rss.xml' },
+  ]
+};
+
+const INDICES = [
+  { sym:'^KS11',  name:'KOSPI',   tag:'kr' },
+  { sym:'^KQ11',  name:'KOSDAQ',  tag:'kr' },
+  { sym:'^IXIC',  name:'NASDAQ',  tag:'us' },
+  { sym:'^GSPC',  name:'S&P 500', tag:'us' },
+];
+
+const STOCKS = [
+  { sym:'005930.KS', name:'삼성전자',  icon:'💾', tag:'kr', currency:'KRW' },
+  { sym:'000660.KS', name:'SK하이닉스',icon:'🔬', tag:'kr', currency:'KRW' },
+  { sym:'005380.KS', name:'현대차',    icon:'🚗', tag:'kr', currency:'KRW' },
+  { sym:'035420.KS', name:'NAVER',     icon:'🔍', tag:'kr', currency:'KRW' },
+  { sym:'NVDA',      name:'NVIDIA',    icon:'🖥', tag:'us', currency:'USD' },
+  { sym:'AAPL',      name:'Apple',     icon:'🍎', tag:'us', currency:'USD' },
+  { sym:'MSFT',      name:'Microsoft', icon:'🪟', tag:'us', currency:'USD' },
+  { sym:'TSLA',      name:'Tesla',     icon:'⚡', tag:'us', currency:'USD' },
+];
+
+const FX_LIST = [
+  { base:'EUR', flag:'🇪🇺', label:'EUR/KRW' },
+  { base:'JPY', flag:'🇯🇵', label:'JPY/KRW', per100:true },
+  { base:'CNY', flag:'🇨🇳', label:'CNY/KRW' },
+  { base:'GBP', flag:'🇬🇧', label:'GBP/KRW' },
+];
+
+/* ═══════════ STATE ═══════════ */
+let newsCache = { korea:[], intl:[] };
+let currentFilter = 'korea';
+let fxRates = null;
+let apiKey = localStorage.getItem('eco_api_key') || '';
+
+/* ═══════════ INIT ═══════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  // Header date
+  const d = new Date();
+  const days = ['일','월','화','수','목','금','토'];
+  document.getElementById('headerDate').textContent =
+    `${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())} ${days[d.getDay()]}`;
+
+  // API key
+  if (apiKey) document.getElementById('apiKey').value = apiKey;
+
+  // Tab switching
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
+
+  // Load news
+  fetchNews('korea');
+  fetchNews('intl');
+});
+
+function pad(n) { return String(n).padStart(2,'0'); }
+
+function switchTab(id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab===id));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id==='tab-'+id));
+  if (id==='stocks' && !document.querySelector('.stock-row')) loadStocks();
+  if (id==='fx'     && !fxRates) loadFX();
+}
+
+/* ═══════════ NEWS ═══════════ */
+async function fetchNews(type) {
+  const items = [];
+  await Promise.all(FEEDS[type].map(async f => {
+    try {
+      const r = await fetch(PROXY(f.url), { signal:AbortSignal.timeout(9000) });
+      const j = await r.json();
+      const xml = new DOMParser().parseFromString(j.contents, 'text/xml');
+      xml.querySelectorAll('item').forEach(el => {
+        const title = el.querySelector('title')?.textContent?.trim();
+        const link  = el.querySelector('link')?.textContent?.trim()
+                   || el.querySelector('guid')?.textContent?.trim();
+        const pub   = el.querySelector('pubDate')?.textContent;
+        // image extraction
+        let img = el.querySelector('enclosure[type^="image"]')?.getAttribute('url')
+               || el.querySelector('[medium="image"]')?.getAttribute('url')
+               || el.querySelector('thumbnail')?.getAttribute('url')
+               || null;
+        if (title && link)
+          items.push({ title, link, source:f.name,
+            date: pub ? new Date(pub) : new Date(), img });
+      });
+    } catch {}
+  }));
+
+  items.sort((a,b) => b.date - a.date);
+  newsCache[type] = items.slice(0,30);
+  if ((type==='korea' && currentFilter==='korea')||(type==='intl' && currentFilter==='intl')) {
+    renderNews(type);
+  }
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter===f));
+  renderNews(f);
+}
+
+function renderNews(type) {
+  const items = newsCache[type];
+  const c = document.getElementById('news-content');
+  if (!items.length) {
+    c.innerHTML = `<div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div><p style="margin-top:14px">뉴스 불러오는 중...</p></div>`;
+    return;
+  }
+
+  let h = '';
+  const [hero, sub, ...rest] = items;
+
+  // Hero
+  h += `<div class="news-hero" onclick="openLink('${esc(hero.link)}')">
+    ${hero.img ? `<img class="news-hero-img" src="${esc(hero.img)}" alt="" onerror="this.parentNode.querySelector('.hero-placeholder').style.display='flex';this.style.display='none'">` : ''}
+    <div class="hero-placeholder" style="${hero.img?'display:none':''}">📰</div>
+    <div class="news-hero-body">
+      <div class="news-source-tag">${hero.source}</div>
+      <div class="news-hero-title">${hero.title}</div>
+      <div class="news-hero-time">${ago(hero.date)}</div>
+    </div>
+  </div>`;
+
+  // Sub-hero
+  if (sub) h += `<div class="news-sub" onclick="openLink('${esc(sub.link)}')">
+    <div class="news-sub-body">
+      <div class="news-sub-title">${sub.title}</div>
+      <div class="news-sub-meta"><span>${sub.source}</span><span>${ago(sub.date)}</span></div>
+    </div>
+  </div>`;
+
+  h += `<div class="section-label">주요 뉴스</div>`;
+
+  rest.slice(0,18).forEach((it,i) => {
+    h += `<div class="news-item">
+      <div class="news-num">${pad(i+3)}</div>
+      <div class="news-body" onclick="openLink('${esc(it.link)}')">
+        <div class="news-title">${it.title}</div>
+        <div class="news-meta"><span>${it.source}</span><span>${ago(it.date)}</span></div>
+      </div>
+      <button class="ai-pill" onclick="analyzeNews(this,'${esc(it.title)}')">AI 분석</button>
+    </div>`;
+  });
+
+  c.innerHTML = h;
+}
+
+function esc(s){ return (s||'').replace(/'/g,"\\'"); }
+function openLink(u){ if(u) window.open(u,'_blank'); }
+function ago(d){
+  const m = Math.floor((Date.now()-d)/60000);
+  if(m<60)return m+'분 전';
+  const h=Math.floor(m/60);
+  if(h<24)return h+'시간 전';
+  return Math.floor(h/24)+'일 전';
+}
+
+/* ═══════════ STOCKS ═══════════ */
+async function loadStocks(){
+  const results = await Promise.all([...INDICES,...STOCKS].map(s=>fetchQuote(s.sym)));
+  renderIndices(results.slice(0,4));
+  renderStockList(results.slice(4));
+}
+
+async function fetchQuote(sym){
+  try {
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=2d`;
+    const r = await fetch(PROXY(url), { signal:AbortSignal.timeout(7000) });
+    const j = await r.json();
+    const data = JSON.parse(j.contents);
+    const meta = data?.chart?.result?.[0]?.meta;
+    if(!meta) return null;
+    const price = meta.regularMarketPrice ?? meta.chartPreviousClose;
+    const prev  = meta.chartPreviousClose ?? meta.previousClose;
+    const chg   = price - prev;
+    const pct   = prev ? (chg/prev)*100 : 0;
+    return { price, chg, pct };
+  } catch { return null; }
+}
+
+function renderIndices(res){
+  const c = document.getElementById('market-indices');
+  c.innerHTML = INDICES.map((idx,i)=>{
+    const q = res[i];
+    const cls = q?(q.chg>0?'up':q.chg<0?'down':'flat'):'flat';
+    const arr = q?(q.chg>0?'▲':q.chg<0?'▼':'-'):'-';
+    const isKR = idx.tag==='kr';
+    return `<div class="idx-card">
+      <div class="idx-name">${idx.name} <span class="market-tag tag-${idx.tag}">${idx.tag.toUpperCase()}</span></div>
+      <div class="idx-val">${q?fmtN(q.price,isKR):'—'}</div>
+      <div class="idx-chg ${cls}">${q?`${arr} ${Math.abs(q.pct).toFixed(2)}%`:'—'}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderStockList(res){
+  const c = document.getElementById('stocks-list');
+  const kr = STOCKS.filter(s=>s.tag==='kr');
+  const us = STOCKS.filter(s=>s.tag==='us');
+  let h = '<div class="section-label">🇰🇷 국내 종목</div>';
+  kr.forEach((s,i)=> h += stockRow(s, res[i]));
+  h += '<div class="section-label">🇺🇸 미국 종목</div>';
+  us.forEach((s,i)=> h += stockRow(s, res[kr.length+i]));
+  c.innerHTML = h;
+}
+
+function stockRow(s,q){
+  const isKR = s.tag==='kr';
+  const up   = q&&q.chg>0, dn = q&&q.chg<0;
+  const bc   = up?'up':dn?'down':'flat';
+  const arr  = up?'▲':dn?'▼':'';
+  return `<div class="stock-row">
+    <div class="stock-icon">${s.icon}</div>
+    <div class="stock-info">
+      <div class="stock-ticker">${s.sym.replace('.KS','').replace('.KQ','')} <span class="market-tag tag-${s.tag}">${s.tag.toUpperCase()}</span></div>
+      <div class="stock-name">${s.name}</div>
+    </div>
+    <div class="stock-right">
+      <div class="stock-price">${q?fmtN(q.price,isKR)+'':'—'}</div>
+      <div><span class="badge ${bc}">${q?`${arr}${Math.abs(q.pct).toFixed(2)}%`:'—'}</span></div>
+    </div>
+  </div>`;
+}
+
+function fmtN(n,isKRW){
+  if(n==null)return'—';
+  return isKRW
+    ? n.toLocaleString('ko-KR',{maximumFractionDigits:0})
+    : n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+/* ═══════════ FX ═══════════ */
+async function loadFX(){
+  try {
+    const r = await fetch('https://open.er-api.com/v6/latest/USD');
+    const d = await r.json();
+    fxRates = d.rates;
+    const krw = d.rates.KRW;
+    document.getElementById('usdkrw').textContent = krw ? krw.toFixed(1) : '—';
+    document.getElementById('usdkrw-sub').textContent = `1 USD = ${krw?.toFixed(1)||'—'} KRW`;
+    document.getElementById('fx-time').textContent = '업데이트: '+new Date(d.time_last_update_utc).toLocaleString('ko-KR');
+
+    document.getElementById('fx-grid').innerHTML = FX_LIST.map(f=>{
+      const base = d.rates[f.base];
+      const rate = krw && base ? (krw/base) : null;
+      const display = rate ? (f.per100?(rate*100).toFixed(1)+' 원':'≈ '+rate.toFixed(1)+' 원') : '—';
+      return `<div class="fx-card">
+        <div class="fx-pair-label">${f.flag} ${f.label}</div>
+        <div class="fx-rate">${rate?(f.per100?(rate*100).toFixed(1):rate.toFixed(1)):'—'}</div>
+        <div class="fx-unit">${f.per100?'100엔 기준':'KRW'}</div>
+      </div>`;
+    }).join('');
+  } catch {
+    document.getElementById('usdkrw').textContent = 'ERR';
+  }
+}
+
+/* ═══════════ AI ═══════════ */
+function saveKey(v){ apiKey=v; localStorage.setItem('eco_api_key',v); }
+
+async function genBriefing(){
+  if(!apiKey){ alert('API 키를 입력해주세요'); return; }
+  const news = [...newsCache.korea.slice(0,5),...newsCache.intl.slice(0,5)];
+  if(!news.length){ alert('뉴스를 먼저 불러와야 합니다'); return; }
+
+  const btn = document.getElementById('briefBtn');
+  btn.disabled = true; btn.textContent = '⏳ 생성 중...';
+
+  const headlines = news.map((n,i)=>`${i+1}. [${n.source}] ${n.title}`).join('\n');
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{ role:'user', content:
+          `다음 경제 뉴스 헤드라인을 바탕으로 오늘의 브리핑을 작성해주세요:\n\n${headlines}\n\n형식:\n📌 오늘의 핵심 이슈 (2줄)\n\n🔍 주목 뉴스 TOP 3 (각 항목 1-2줄 해설)\n\n💡 투자자 체크포인트\n\n간결하고 실용적으로 작성해주세요.`
+        }]
+      })
+    });
+    const j = await res.json();
+    const text = j.content?.[0]?.text || '브리핑 생성 실패';
+    document.getElementById('aiText').textContent = text;
+    document.getElementById('aiResult').classList.add('show');
+  } catch(e) {
+    alert('오류: '+e.message);
+  } finally {
+    btn.disabled=false; btn.textContent='✨ 오늘의 경제 브리핑 생성';
+  }
+}
+
+async function analyzeNews(btn, title){
+  if(!apiKey){ alert('AI 탭에서 API 키를 먼저 입력해주세요'); return; }
+  btn.textContent='...'; btn.disabled=true;
+
+  document.getElementById('modalTitle').textContent = title.length>30?title.slice(0,30)+'…':title;
+  document.getElementById('modalBody').innerHTML = '<div class="dots"><span></span><span></span><span></span></div>';
+  document.getElementById('modal').classList.add('open');
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:500,
+        messages:[{ role:'user', content:
+          `뉴스: "${title}"\n\n간결하게 분석해주세요:\n1️⃣ 핵심 내용 (2줄)\n2️⃣ 시장/경제 영향\n3️⃣ 투자자 관점`
+        }]
+      })
+    });
+    const j = await res.json();
+    document.getElementById('modalBody').textContent = j.content?.[0]?.text||'분석 실패';
+  } catch {
+    document.getElementById('modalBody').textContent = '분석 중 오류 발생';
+  } finally {
+    btn.textContent='AI 분석'; btn.disabled=false;
+  }
+}
+
+function closeModal(e){
+  if(e.target.id==='modal') document.getElementById('modal').classList.remove('open');
+}
+</script>
+
+<!-- PWA Service Worker -->
+<script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>

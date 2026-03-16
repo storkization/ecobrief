@@ -674,13 +674,11 @@ const RSS2JSON = url => `https://api.rss2json.com/v1/api.json?rss_url=${encodeUR
 
 const FEEDS = {
   korea: [
-    { name:'Google뉴스', url:'https://news.google.com/rss/search?q=한국+경제+주식&hl=ko&gl=KR&ceid=KR:ko' },
-    { name:'Google뉴스', url:'https://news.google.com/rss/search?q=코스피+코스닥+금리&hl=ko&gl=KR&ceid=KR:ko' },
-    { name:'Google뉴스', url:'https://news.google.com/rss/search?q=삼성전자+반도체+수출&hl=ko&gl=KR&ceid=KR:ko' },
+    { name:'한국경제', url:'https://www.hankyung.com/feed/economy' },
+    { name:'매일경제', url:'https://rss.mk.co.kr/economy' },
   ],
   intl: [
-    { name:'Google뉴스', url:'https://news.google.com/rss/search?q=미국+경제+연준+금리&hl=ko&gl=KR&ceid=KR:ko' },
-    { name:'Google뉴스', url:'https://news.google.com/rss/search?q=국제+경제+무역+달러&hl=ko&gl=KR&ceid=KR:ko' },
+    { name:'연합뉴스', url:'https://www.yna.co.kr/rss/international.xml' },
   ]
 };
 
@@ -747,27 +745,40 @@ function switchTab(id) {
 
 /* ═══════════ NEWS ═══════════ */
 async function fetchNews(type) {
-  const items = [];
-  await Promise.all(FEEDS[type].map(async f => {
-    try {
-      const r = await fetch(RSS2JSON(f.url), { signal:AbortSignal.timeout(9000) });
-      const j = await r.json();
-      if (j.status !== 'ok') return;
-      j.items.forEach(el => {
-        const title = el.title?.trim();
-        const link  = el.link || el.guid;
-        const img   = el.thumbnail || el.enclosure?.link || null;
-        const pub   = el.pubDate;
-        if (title && link)
-          items.push({ title, link, source:f.name,
-            date: pub ? new Date(pub) : new Date(), img });
-      });
-    } catch {}
-  }));
+  try {
+    const queries = type === 'korea'
+      ? ['한국경제 코스피', '금리 환율 무역', '삼성전자 반도체 기업']
+      : ['미국경제 연준 금리', '국제무역 달러 환율'];
 
-  items.sort((a,b) => b.date - a.date);
-  newsCache[type] = items.slice(0,30);
-  if ((type==='korea' && currentFilter==='korea')||(type==='intl' && currentFilter==='intl')) {
+    const allItems = [];
+
+    await Promise.all(queries.map(async q => {
+      try {
+        const r = await fetch(`/api/news?query=${encodeURIComponent(q)}&display=10&type=${type}`,
+          { signal: AbortSignal.timeout(8000) });
+        const j = await r.json();
+        if (j.items) allItems.push(...j.items);
+      } catch {}
+    }));
+
+    // 중복 제거 (제목 기준)
+    const seen = new Set();
+    const unique = allItems.filter(item => {
+      if (seen.has(item.title)) return false;
+      seen.add(item.title);
+      return true;
+    });
+
+    // 날짜순 정렬
+    unique.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    newsCache[type] = unique.slice(0, 30);
+  } catch {
+    newsCache[type] = [];
+  }
+
+  if ((type === 'korea' && currentFilter === 'korea') ||
+      (type === 'intl'  && currentFilter === 'intl')) {
     renderNews(type);
   }
 }

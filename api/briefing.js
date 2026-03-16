@@ -24,7 +24,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 1200,
+        max_tokens: 2000,
         messages: [{
           role: 'user',
           content: `당신은 기관 투자자 수준의 경제 분석가입니다. 오늘의 국내외 경제 뉴스를 분석해서 진짜 중요한 핵심 이슈 10가지를 선별해 브리핑을 작성해주세요.

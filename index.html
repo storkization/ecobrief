@@ -651,8 +651,7 @@
 
 <script>
 /* ═══════════ CONFIG ═══════════ */
-const PROXY = url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`;
-const PROXY2 = url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+const RSS2JSON = url => `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`;
 
 const FEEDS = {
   korea: [
@@ -732,26 +731,14 @@ async function fetchNews(type) {
   const items = [];
   await Promise.all(FEEDS[type].map(async f => {
     try {
-      let text;
-      try {
-        const r = await fetch(PROXY(f.url), { signal:AbortSignal.timeout(8000) });
-        text = await r.text();
-      } catch {
-        const r2 = await fetch(PROXY2(f.url), { signal:AbortSignal.timeout(8000) });
-        const j2 = await r2.json();
-        text = j2.contents;
-      }
-      const xml = new DOMParser().parseFromString(text, 'text/xml');
-      xml.querySelectorAll('item').forEach(el => {
-        const title = el.querySelector('title')?.textContent?.trim();
-        const link  = el.querySelector('link')?.textContent?.trim()
-                   || el.querySelector('guid')?.textContent?.trim();
-        const pub   = el.querySelector('pubDate')?.textContent;
-        // image extraction
-        let img = el.querySelector('enclosure[type^="image"]')?.getAttribute('url')
-               || el.querySelector('[medium="image"]')?.getAttribute('url')
-               || el.querySelector('thumbnail')?.getAttribute('url')
-               || null;
+      const r = await fetch(RSS2JSON(f.url), { signal:AbortSignal.timeout(9000) });
+      const j = await r.json();
+      if (j.status !== 'ok') return;
+      j.items.forEach(el => {
+        const title = el.title?.trim();
+        const link  = el.link || el.guid;
+        const img   = el.thumbnail || el.enclosure?.link || null;
+        const pub   = el.pubDate;
         if (title && link)
           items.push({ title, link, source:f.name,
             date: pub ? new Date(pub) : new Date(), img });

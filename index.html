@@ -16,7 +16,8 @@
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Noto+Serif+KR:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
 
   <style>
     :root {
@@ -44,7 +45,7 @@
       height:100%;
       background: linear-gradient(160deg, #1B2A4A 0%, #0F1E38 100%);
       color:var(--text);
-      font-family:'Noto Serif KR', serif;
+      font-family:'Pretendard', -apple-system, sans-serif;
       overflow:hidden;
       position:relative;
     }
@@ -109,7 +110,7 @@
       flex:1; padding:10px 2px;
       background:none; border:none;
       color:var(--text-muted);
-      font-family:'Noto Serif KR', serif;
+      font-family:'Pretendard', -apple-system, sans-serif;
       font-size:12px; cursor:pointer;
       position:relative;
       transition:color 0.2s;
@@ -170,7 +171,7 @@
       border-radius:20px;
       background:#FFFFFF;
       color:var(--text-muted);
-      font-family:'Noto Serif KR', serif;
+      font-family:'Pretendard', -apple-system, sans-serif;
       font-size:12px; cursor:pointer;
       transition:all .2s;
     }
@@ -185,38 +186,42 @@
       margin:0 0 10px;
       border-radius:var(--radius);
       overflow:hidden;
-      background:#FFFFFF;
+      background: linear-gradient(135deg, #1A3A6E 0%, #0F2247 100%);
       cursor:pointer;
       border:none;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+      position:relative;
+    }
+    .news-hero::before {
+      content:'';
+      position:absolute; inset:0;
+      background: linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.5) 100%);
+      pointer-events:none;
     }
     .news-hero-img {
       width:100%; height:185px;
       object-fit:cover; display:block;
     }
-    .hero-placeholder {
-      height:185px;
-      background:linear-gradient(135deg,#14142A 0%,#0F2040 50%,#0A1020 100%);
-      display:flex; align-items:center; justify-content:center;
-      font-size:52px; opacity:.25;
+    .news-hero-body {
+      padding:22px 18px 20px;
+      position:relative;
     }
-    .news-hero-body { padding:16px; }
     .news-source-tag {
       font-family:'IBM Plex Mono', monospace;
       font-size:9px; font-weight:600;
-      color:var(--accent);
+      color:rgba(255,255,255,0.6);
       text-transform:uppercase; letter-spacing:1.5px;
-      margin-bottom:8px;
+      margin-bottom:10px;
     }
     .news-hero-title {
-      font-family:'Playfair Display', serif;
-      font-size:19px; font-weight:700;
-      line-height:1.35; color:var(--text);
+      font-size:20px; font-weight:800;
+      line-height:1.35; color:#FFFFFF;
+      letter-spacing:-0.3px;
     }
     .news-hero-time {
       font-family:'IBM Plex Mono', monospace;
-      font-size:9px; color:var(--text-muted);
-      margin-top:10px;
+      font-size:9px; color:rgba(255,255,255,0.5);
+      margin-top:12px;
     }
 
     /* Sub-hero */
@@ -265,8 +270,8 @@
     }
     .news-body { flex:1; cursor:pointer; }
     .news-title {
-      font-size:13.5px; line-height:1.5;
-      color:var(--text); margin-bottom:4px;
+      font-size:14px; font-weight:600;
+      line-height:1.5; color:#111827; margin-bottom:4px;
     }
     .news-meta {
       font-family:'IBM Plex Mono', monospace;
@@ -481,7 +486,7 @@
       background:var(--accent);
       border:none; border-radius:var(--radius);
       color:#fff;
-      font-family:'Noto Serif KR', serif;
+      font-family:'Pretendard', -apple-system, sans-serif;
       font-size:15px; font-weight:700;
       cursor:pointer; text-align:center;
       transition:all .2s;
@@ -786,8 +791,7 @@ function renderNews(type) {
 
   // Hero
   h += `<div class="news-hero" onclick="openLink('${esc(hero.link)}')">
-    ${hero.img ? `<img class="news-hero-img" src="${esc(hero.img)}" alt="" onerror="this.parentNode.querySelector('.hero-placeholder').style.display='flex';this.style.display='none'">` : ''}
-    <div class="hero-placeholder" style="${hero.img?'display:none':''}">📰</div>
+    ${hero.img ? `<img class="news-hero-img" src="${esc(hero.img)}" alt="" onerror="this.style.display='none'">` : ''}
     <div class="news-hero-body">
       <div class="news-source-tag">${hero.source}</div>
       <div class="news-hero-title">${hero.title}</div>

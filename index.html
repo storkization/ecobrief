@@ -196,19 +196,19 @@
       letter-spacing:0.5px;
     }
     .summary-oneliner {
-      padding:14px 24px;
-      border-bottom:1.5px solid #1A7A45;
-      background:#F7FBF8;
+      padding:18px 24px;
+      background: linear-gradient(135deg, #0D3320 0%, #1A5C35 100%);
+      border-radius:0 0 12px 12px;
     }
     .summary-oneliner-label {
       font-family:'IBM Plex Mono', monospace;
-      font-size:9px; color:#1A7A45;
+      font-size:9px; color:rgba(255,255,255,0.6);
       text-transform:uppercase; letter-spacing:2px;
-      margin-bottom:6px;
+      margin-bottom:8px;
     }
     .summary-oneliner-text {
       font-size:15px; font-weight:700;
-      color:#111827; line-height:1.5;
+      color:#FFFFFF; line-height:1.6;
       letter-spacing:-0.2px;
     }
     .summary-line-wrap {
@@ -988,7 +988,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v12';
+const CACHE_VERSION = 'v15';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1214,7 +1214,7 @@ async function genTabSummary(tab) {
       summary: j.summary || '',
       briefing: j.briefing || '',
       oneliner: j.oneliner || '',
-      topNews: unique.slice(0, 7),
+      topNews: unique.slice(0, 15),
     };
     summaryCache[tab] = result;
     localStorage.setItem(cacheKey, JSON.stringify(result));
@@ -1240,9 +1240,15 @@ async function genTabSummary(tab) {
 function renderTabSummary(tab, result) {
   const card = document.getElementById(`${tab}-summary-card`);
   if (card && result.summary) {
-    const lines = result.summary.split('\n')
-      .map(l => l.replace(/^줄\d+:\s*/, '').trim())
-      .filter(l => l.length > 0).slice(0, 3);
+    // 줄1:/줄2:/줄3: 패턴으로 정확하게 추출
+    const m1 = result.summary.match(/줄1:\s*(.+)/);
+    const m2 = result.summary.match(/줄2:\s*(.+)/);
+    const m3 = result.summary.match(/줄3:\s*(.+)/);
+    const lines = [m1, m2, m3].map(m => m ? m[1].trim() : null).filter(Boolean);
+
+    // 패턴 매칭 실패 시 줄바꿈으로 폴백
+    const finalLines = lines.length >= 2 ? lines :
+      result.summary.split('\n').map(l => l.replace(/^줄\d+:\s*/, '').trim()).filter(l => l.length > 10).slice(0, 3);
 
     const tags = [
       { cls:'tag-issue',  label:'🌿 핵심 이슈' },
@@ -1267,9 +1273,9 @@ function renderTabSummary(tab, result) {
         <div class="summary-oneliner-label">🌲 종합 분석</div>
         <div class="summary-oneliner-text">${result.oneliner}</div>
       </div>` : ''}
-      ${lines.map((line, i) => `
+      ${finalLines.map((line, i) => `
         <div class="summary-line-wrap">
-          <div class="summary-line-tag ${tags[i].cls}">${tags[i].label}</div>
+          <div class="summary-line-tag ${tags[i] ? tags[i].cls : 'tag-issue'}">${tags[i] ? tags[i].label : ''}</div>
           <div class="summary-line-text">${line}</div>
         </div>
       `).join('')}

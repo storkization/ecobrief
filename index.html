@@ -1134,7 +1134,6 @@ async function genTabSummary(tab) {
   try {
     setLoadingMsg(tab, `AI가 오늘의 ${label} 브리핑을 작성하고 있어요...<br><span style="font-size:11px;color:rgba(255,255,255,0.75);">보통 10~20초 정도 소요됩니다</span>`);
     const headlines = unique.slice(0, 25).map(n => n.title);
-    const label = TAB_LABEL[tab];
     const res = await fetch('/api/briefing', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

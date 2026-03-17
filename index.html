@@ -1027,7 +1027,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v15';
+const CACHE_VERSION = 'v16';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1280,9 +1280,9 @@ function renderTabSummary(tab, result) {
   const card = document.getElementById(`${tab}-summary-card`);
   if (card && result.summary) {
     // 줄1:/줄2:/줄3: 패턴으로 정확하게 추출
-    const m1 = result.summary.match(/줄1:\s*(.+)/);
-    const m2 = result.summary.match(/줄2:\s*(.+)/);
-    const m3 = result.summary.match(/줄3:\s*(.+)/);
+    const m1 = result.summary.match(/줄1:\s*(.+?)(?=\s*줄[23]:|$)/);
+    const m2 = result.summary.match(/줄2:\s*(.+?)(?=\s*줄3:|$)/);
+    const m3 = result.summary.match(/줄3:\s*(.+?)(?=$)/);
     const lines = [m1, m2, m3].map(m => m ? m[1].trim() : null).filter(Boolean);
 
     // 패턴 매칭 실패 시 줄바꿈으로 폴백

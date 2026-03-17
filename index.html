@@ -988,7 +988,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v11';
+const CACHE_VERSION = 'v12';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1196,8 +1196,6 @@ async function genTabSummary(tab) {
     .slice(0, 25);
 
   newsCache[`${tab}-summary`] = unique;
-
-  setLoadingMsg(tab, 'ai');
 
   // AI 호출
   try {

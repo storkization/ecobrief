@@ -24,7 +24,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 1200,
+        max_tokens: 1800,
         messages: [{
           role: 'user',
           content: `아래는 오늘의 [${label}] 분야 주요 뉴스 헤드라인이야.

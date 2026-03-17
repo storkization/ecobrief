@@ -82,6 +82,33 @@
       font-size:9px; color:var(--text-muted);
       line-height:1.6;
     }
+    .header-sub {
+      display:flex; align-items:center; gap:5px;
+      margin-top:5px;
+    }
+    .header-sub-main {
+      font-size:10px; font-weight:600;
+      color:var(--accent);
+      letter-spacing:-0.2px;
+    }
+    .header-sub-divider {
+      font-size:9px; color:var(--text-dim);
+    }
+    .header-sub-by {
+      font-family:'IBM Plex Mono', monospace;
+      font-size:9px; color:var(--text-muted);
+    }
+    .header-sub-by em {
+      font-style:normal; font-weight:600;
+      color:var(--text);
+    }
+    .header-sub-model {
+      font-family:'IBM Plex Mono', monospace;
+      font-size:9px; color:var(--text-dim);
+      background:var(--accent-dim);
+      padding:1px 6px; border-radius:20px;
+      border:1px solid rgba(26,122,69,0.15);
+    }
     .live-dot {
       display:inline-flex; align-items:center; gap:4px;
       font-family:'IBM Plex Mono', monospace;
@@ -753,6 +780,13 @@
         <div class="header-date" id="headerDate"></div>
       </div>
     </div>
+    <div class="header-sub">
+      <span class="header-sub-main">숲을 보는 숀킴의 경제 채널</span>
+      <span class="header-sub-divider">·</span>
+      <span class="header-sub-by">Created by <em>Shawn Kim</em></span>
+      <span class="header-sub-divider">·</span>
+      <span class="header-sub-model">AI · claude-sonnet-4</span>
+    </div>
   </div>
 
   <!-- TABS -->
@@ -1268,17 +1302,17 @@ function renderTabSummary(tab, result) {
         <div class="summary-report-title">오늘의 <em>${tabLabel}</em></div>
         <div class="summary-report-date">${dateStr}</div>
       </div>
-      ${result.oneliner ? `
-      <div class="summary-oneliner">
-        <div class="summary-oneliner-label">🌲 종합 분석</div>
-        <div class="summary-oneliner-text">${result.oneliner}</div>
-      </div>` : ''}
       ${finalLines.map((line, i) => `
         <div class="summary-line-wrap">
           <div class="summary-line-tag ${tags[i] ? tags[i].cls : 'tag-issue'}">${tags[i] ? tags[i].label : ''}</div>
           <div class="summary-line-text">${line}</div>
         </div>
       `).join('')}
+      ${result.oneliner ? `
+      <div class="summary-oneliner">
+        <div class="summary-oneliner-label">🌲 종합 분석</div>
+        <div class="summary-oneliner-text">${result.oneliner}</div>
+      </div>` : ''}
     `;
   }
 
@@ -1355,7 +1389,6 @@ function renderNewsList(items, el) {
         <div class="news-title">${it.title}</div>
         <div class="news-meta"><span>${it.source}</span><span>${ago(it.date)}</span></div>
       </div>
-      <button class="ai-pill" onclick="analyzeNews(this,'${esc(it.title)}')">AI 분석</button>
     </div>`;
   });
   el.innerHTML = h;

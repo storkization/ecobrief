@@ -159,68 +159,71 @@
       color:#fff; font-weight:700;
     }
 
-    /* ── SUMMARY CARD (보고서 스타일) ── */
+    @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+    /* ── SUMMARY CARD (Yahoo Finance 스타일) ── */
     .summary-card {
-      background: #1A7A45;
-      border-radius:16px; padding:28px 24px;
-      margin-bottom:14px;
-      box-shadow:0 4px 20px rgba(26,122,69,0.2);
-      border:none;
+      background: #FFFFFF;
+      border-radius:12px; padding:0;
+      margin-bottom:16px;
+      box-shadow:0 2px 12px rgba(0,0,0,0.08);
+      border:1.5px solid #1A7A45;
+      overflow:hidden;
     }
     .summary-report-header {
       text-align:center;
-      padding-bottom:18px;
-      margin-bottom:18px;
-      border-bottom:1px solid rgba(255,255,255,0.15);
+      padding:20px 24px 16px;
+      border-bottom:1.5px solid #1A7A45;
+      background:#FFFFFF;
     }
     .summary-report-eyebrow {
       font-family:'IBM Plex Mono', monospace;
       font-size:9px; letter-spacing:3px;
-      color:rgba(255,255,255,0.6);
+      color:#1A7A45;
       text-transform:uppercase;
-      margin-bottom:10px;
+      margin-bottom:8px;
     }
     .summary-report-title {
       font-family:'Playfair Display', serif;
-      font-size:22px; font-weight:900;
-      color:#FFFFFF; letter-spacing:-0.5px;
-      line-height:1.2; margin-bottom:8px;
+      font-size:20px; font-weight:900;
+      color:#111827; letter-spacing:-0.5px;
+      line-height:1.2; margin-bottom:6px;
     }
-    .summary-report-title em { color:#A7F3C4; font-style:normal; }
+    .summary-report-title em { color:#1A7A45; font-style:normal; }
     .summary-report-date {
       font-family:'IBM Plex Mono', monospace;
-      font-size:10px; color:rgba(255,255,255,0.55);
+      font-size:10px; color:#6B7280;
       letter-spacing:0.5px;
     }
     .summary-note-label {
       font-family:'Playfair Display', serif;
-      font-size:13px; font-weight:700;
-      color:rgba(255,255,255,0.6);
+      font-size:12px; font-weight:700;
+      color:#1A7A45;
       font-style:italic;
       text-align:center;
-      margin-bottom:16px;
+      padding:12px 24px 0;
       letter-spacing:0.3px;
     }
     .summary-line-wrap {
-      padding:12px 0;
-      border-bottom:1px solid rgba(255,255,255,0.1);
+      padding:14px 24px;
+      border-bottom:1px solid #E8F0EB;
     }
-    .summary-line-wrap:last-child { border-bottom:none; padding-bottom:0; }
+    .summary-line-wrap:last-child { border-bottom:none; }
     .summary-line-tag {
       display:inline-block;
       font-family:'IBM Plex Mono', monospace;
-      font-size:9px; font-weight:600;
-      padding:2px 7px; border-radius:3px;
-      margin-bottom:6px; letter-spacing:1px;
+      font-size:9px; font-weight:700;
+      padding:3px 8px; border-radius:4px;
+      margin-bottom:7px; letter-spacing:1px;
       text-transform:uppercase;
     }
-    .tag-issue  { background:rgba(255,255,255,0.15); color:#FFFFFF; }
-    .tag-market { background:rgba(255,255,255,0.12); color:#D1FAE5; }
-    .tag-invest { background:rgba(251,191,36,0.25); color:#FEF3C7; }
+    .tag-issue  { background:#E8F5EE; color:#1A7A45; border:1px solid #1A7A45; }
+    .tag-market { background:#E8F5EE; color:#1A7A45; border:1px solid #1A7A45; }
+    .tag-invest { background:#FEF9E7; color:#92600A; border:1px solid #D4A017; }
     .summary-line-text {
       font-size:14px; font-weight:600;
-      color:#FFFFFF; line-height:1.65;
-      letter-spacing:-0.2px;
+      color:#111827; line-height:1.75;
+      letter-spacing:-0.1px;
     }
 
     /* ── 1면 카드 ── */
@@ -381,8 +384,8 @@
 
     .news-item {
       display:flex; gap:10px;
-      padding:13px 14px;
-      border-bottom:1px solid #F3F4F6;
+      padding:16px 16px;
+      border-bottom:1px solid #F0F0F0;
       align-items:flex-start;
       background:#FFFFFF;
     }
@@ -390,17 +393,20 @@
     .news-item:last-of-type  { border-radius:0 0 var(--radius) var(--radius); border-bottom:none; }
     .news-num {
       font-family:'IBM Plex Mono', monospace;
-      font-size:11px; color:var(--text-dim);
-      min-width:18px; padding-top:2px;
+      font-size:11px; color:#1A7A45;
+      font-weight:700;
+      min-width:22px; padding-top:2px;
     }
     .news-body { flex:1; cursor:pointer; }
     .news-title {
       font-size:14px; font-weight:600;
-      line-height:1.5; color:#111827; margin-bottom:4px;
+      line-height:1.65; color:#111827;
+      margin-bottom:6px;
+      letter-spacing:-0.1px;
     }
     .news-meta {
       font-family:'IBM Plex Mono', monospace;
-      font-size:9px; color:var(--text-muted);
+      font-size:9px; color:#6B7280;
       display:flex; gap:8px;
     }
     .ai-pill {
@@ -802,10 +808,10 @@
       <!-- 종합 뷰 (summary 칩) -->
       <div id="economy-summary-view">
         <div class="summary-card" id="economy-summary-card">
-          <div style="text-align:center; padding:20px 0;">
-            <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:rgba(255,255,255,0.75); letter-spacing:3px; text-transform:uppercase; margin-bottom:16px;">Shawn Kim's Daily Briefing</div>
-            <div class="dots"><span></span><span></span><span></span></div>
-            <div style="color:rgba(255,255,255,0.75); font-size:12px; margin-top:12px;">뉴스 분석 중...</div>
+          <div style="text-align:center; padding:32px 20px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:#1A7A45; letter-spacing:3px; text-transform:uppercase; margin-bottom:16px;">Shawn Kim's Daily Briefing</div>
+            <div style="font-size:28px; margin-bottom:14px;">⏳</div>
+            <div style="color:#111827; font-size:13px; font-weight:600;">뉴스 분석 중...</div>
           </div>
         </div>
         <div id="economy-summary-news"></div>
@@ -821,10 +827,10 @@
     <div class="tab-panel" id="tab-industry">
       <div id="industry-summary-view">
         <div class="summary-card" id="industry-summary-card">
-          <div style="text-align:center; padding:20px 0;">
-            <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:rgba(255,255,255,0.75); letter-spacing:3px; text-transform:uppercase; margin-bottom:16px;">Shawn Kim's Daily Briefing</div>
-            <div class="dots"><span></span><span></span><span></span></div>
-            <div style="color:rgba(255,255,255,0.75); font-size:12px; margin-top:12px;">탭을 누르면 산업 브리핑이 시작됩니다</div>
+          <div style="text-align:center; padding:32px 20px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:#1A7A45; letter-spacing:3px; text-transform:uppercase; margin-bottom:16px;">Shawn Kim's Daily Briefing</div>
+            <div style="font-size:28px; margin-bottom:14px;">🏭</div>
+            <div style="color:#6B7280; font-size:13px;">산업 탭을 누르면 브리핑이 시작됩니다</div>
           </div>
         </div>
         <div id="industry-summary-news"></div>
@@ -838,10 +844,10 @@
     <div class="tab-panel" id="tab-global">
       <div id="global-summary-view">
         <div class="summary-card" id="global-summary-card">
-          <div style="text-align:center; padding:20px 0;">
-            <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:rgba(255,255,255,0.75); letter-spacing:3px; text-transform:uppercase; margin-bottom:16px;">Shawn Kim's Daily Briefing</div>
-            <div class="dots"><span></span><span></span><span></span></div>
-            <div style="color:rgba(255,255,255,0.75); font-size:12px; margin-top:12px;">탭을 누르면 국제 브리핑이 시작됩니다</div>
+          <div style="text-align:center; padding:32px 20px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:#1A7A45; letter-spacing:3px; text-transform:uppercase; margin-bottom:16px;">Shawn Kim's Daily Briefing</div>
+            <div style="font-size:28px; margin-bottom:14px;">🌐</div>
+            <div style="color:#6B7280; font-size:13px;">국제 탭을 누르면 브리핑이 시작됩니다</div>
           </div>
         </div>
         <div id="global-summary-news"></div>
@@ -975,7 +981,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v6';
+const CACHE_VERSION = 'v7';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1075,15 +1081,53 @@ function selectChip(tab, chipId) {
 }
 
 /* ═══════════ 종합 생성 ═══════════ */
-function setLoadingMsg(tab, msg) {
+const LOADING_MSGS = [
+  '오늘의 주요 뉴스를 수집하고 있어요',
+  '핵심 이슈를 짚어보고 있어요',
+  '시장 흐름을 분석하고 있습니다',
+  '당신만을 위한 투자 포인트를 찾는 중',
+  '글로벌 경제 신호를 읽고 있어요',
+  '중요한 숫자와 데이터를 확인 중입니다',
+  '오늘의 경제 맥락을 정리하고 있어요',
+  '전문가 관점으로 뉴스를 해석 중입니다',
+  '숲을 보는 시각으로 분석하고 있어요',
+  '브리핑 초안을 작성하고 있습니다',
+];
+
+let _loadingInterval = null;
+
+function setLoadingMsg(tab, phase) {
   const card = document.getElementById(`${tab}-summary-card`);
   if (!card) return;
-  card.innerHTML = `
-    <div style="text-align:center; padding:20px 0;">
-      <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:rgba(255,255,255,0.75); letter-spacing:3px; text-transform:uppercase; margin-bottom:16px;">Shawn Kim's Daily Briefing</div>
-      <div class="dots"><span></span><span></span><span></span></div>
-      <div style="color:rgba(255,255,255,0.5); font-size:13px; margin-top:14px; line-height:1.6;">${msg}</div>
-    </div>`;
+
+  if (_loadingInterval) { clearInterval(_loadingInterval); _loadingInterval = null; }
+
+  const icons = ['⏳','⚙️','🕐','🔍','📊'];
+  let msgIdx = 0; let iconIdx = 0;
+
+  function render() {
+    const icon = icons[iconIdx % icons.length];
+    const msg = phase === 'news'
+      ? LOADING_MSGS[msgIdx % LOADING_MSGS.length]
+      : phase === 'ai'
+      ? LOADING_MSGS[msgIdx % LOADING_MSGS.length]
+      : phase;
+    card.innerHTML = `
+      <div style="text-align:center; padding:28px 0;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:rgba(255,255,255,0.6); letter-spacing:3px; text-transform:uppercase; margin-bottom:20px;">Shawn Kim's Daily Briefing</div>
+        <div style="font-size:32px; margin-bottom:16px; animation:spin 2s linear infinite; display:inline-block;">${icon}</div>
+        <div style="color:rgba(255,255,255,0.9); font-size:14px; font-weight:600; margin-top:4px; line-height:1.6; padding:0 12px;">${msg}</div>
+        <div style="color:rgba(255,255,255,0.45); font-size:11px; margin-top:10px;">잠시만 기다려주세요...</div>
+      </div>`;
+    msgIdx++; iconIdx++;
+  }
+
+  render();
+  _loadingInterval = setInterval(render, 2500);
+}
+
+function stopLoadingMsg() {
+  if (_loadingInterval) { clearInterval(_loadingInterval); _loadingInterval = null; }
 }
 
 async function genTabSummary(tab) {
@@ -1105,7 +1149,7 @@ async function genTabSummary(tab) {
   const label = TAB_LABEL[tab];
 
   // 뉴스 수집
-  setLoadingMsg(tab, `오늘의 ${label} 뉴스를 수집하고 있어요...`);
+  setLoadingMsg(tab, 'news');
   const queries = SUMMARY_QUERIES[tab];
   const allItems = [];
   for (const q of queries) {
@@ -1128,11 +1172,11 @@ async function genTabSummary(tab) {
 
   newsCache[`${tab}-summary`] = unique;
 
-  setLoadingMsg(tab, `${unique.length}개 뉴스 중 핵심 이슈를 선별하는 중...`);
+  setLoadingMsg(tab, 'ai');
 
   // AI 호출
   try {
-    setLoadingMsg(tab, `AI가 오늘의 ${label} 브리핑을 작성하고 있어요...<br><span style="font-size:11px;color:rgba(255,255,255,0.75);">보통 10~20초 정도 소요됩니다</span>`);
+    setLoadingMsg(tab, 'ai');
     const headlines = unique.slice(0, 25).map(n => n.title);
     const res = await fetch('/api/briefing', {
       method: 'POST',
@@ -1151,6 +1195,7 @@ async function genTabSummary(tab) {
     summaryCache[tab] = result;
     localStorage.setItem(cacheKey, JSON.stringify(result));
     localStorage.setItem(cacheTimeKey, Date.now());
+    stopLoadingMsg();
     renderTabSummary(tab, result);
     updateFrontPreview(tab, result.summary);
     if (tab === 'economy') {
@@ -1158,6 +1203,7 @@ async function genTabSummary(tab) {
       updateBriefingTimestamp();
     }
   } catch(err) {
+    stopLoadingMsg();
     const card = document.getElementById(`${tab}-summary-card`);
     if (card) card.innerHTML = `<p style="color:rgba(255,255,255,0.5);font-size:13px;">브리핑 생성 중 오류가 발생했습니다.</p>`;
     if (tab === 'economy') {
@@ -1205,7 +1251,7 @@ function renderTabSummary(tab, result) {
   // AI가 고른 주요 뉴스
   const newsEl = document.getElementById(`${tab}-summary-news`);
   if (newsEl && result.topNews) {
-    let h = `<div class="section-label">AI 추천 주요뉴스</div>`;
+    let h = `<div class="section-label">AI 추천 주요뉴스</div><div style="border-radius:var(--radius); overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.06);">`;
     result.topNews.forEach((it, i) => {
       h += `<div class="news-item">
         <div class="news-num">${pad(i+1)}</div>
@@ -1213,9 +1259,9 @@ function renderTabSummary(tab, result) {
           <div class="news-title">${it.title}</div>
           <div class="news-meta"><span>${it.source}</span><span>${ago(it.date)}</span></div>
         </div>
-        <button class="ai-pill" onclick="analyzeNews(this,'${esc(it.title)}')">AI 분석</button>
       </div>`;
     });
+    h += `</div>`;
     newsEl.innerHTML = h;
   }
 }

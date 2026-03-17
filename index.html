@@ -241,12 +241,36 @@
       padding-left:12px;
     }
     .insight-line {
-      display:flex; gap:8px; align-items:flex-start;
+      display:flex; gap:10px; align-items:flex-start;
       margin-bottom:10px; font-size:14px; font-weight:600;
       color:#FFFFFF; line-height:1.65; letter-spacing:-0.2px;
     }
     .insight-line:last-child { margin-bottom:0; }
     .insight-icon { flex-shrink:0; font-size:13px; margin-top:2px; }
+    .insight-section-label {
+      font-family:'IBM Plex Mono', monospace;
+      font-size:9px; color:var(--text-muted);
+      text-transform:uppercase; letter-spacing:2px;
+      margin: 14px 16px 8px;
+    }
+    .insight-card {
+      background: linear-gradient(135deg, #0D3320 0%, #1A5C35 100%);
+      border-radius:var(--radius);
+      margin: 0 16px 14px;
+      padding: 18px 20px;
+    }
+    .insight-badge {
+      flex-shrink:0;
+      font-family:'IBM Plex Mono', monospace;
+      font-size:9px; font-weight:700;
+      color:#fff; padding:2px 7px;
+      border-radius:4px; letter-spacing:0.5px;
+      margin-top:3px;
+    }
+    .insight-text {
+      font-size:14px; font-weight:600;
+      color:#fff; line-height:1.65;
+    }
     .summary-line-wrap {
       padding:14px 24px;
       border-bottom:1px solid #E8F0EB;
@@ -867,6 +891,7 @@
             <div style="color:#111827; font-size:13px; font-weight:600;">뉴스 분석 중...</div>
           </div>
         </div>
+        <div id="economy-insight"></div>
         <div id="economy-summary-news"></div>
       </div>
 
@@ -886,6 +911,7 @@
             <div style="color:#6B7280; font-size:13px;">산업 탭을 누르면 브리핑이 시작됩니다</div>
           </div>
         </div>
+        <div id="industry-insight"></div>
         <div id="industry-summary-news"></div>
       </div>
       <div id="industry-sub-view" style="display:none;">
@@ -903,6 +929,7 @@
             <div style="color:#6B7280; font-size:13px;">국제 탭을 누르면 브리핑이 시작됩니다</div>
           </div>
         </div>
+        <div id="global-insight"></div>
         <div id="global-summary-news"></div>
       </div>
       <div id="global-sub-view" style="display:none;">
@@ -1034,7 +1061,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v17';
+const CACHE_VERSION = 'v18';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1328,22 +1355,29 @@ function renderTabSummary(tab, result) {
           <div class="summary-line-text">${line}</div>
         </div>
       `).join('')}
-      ${result.oneliner ? `
-      <div class="summary-oneliner">
-        <div class="summary-oneliner-label">✦ Shawn's Insight</div>
-        ${(() => {
-          const sentences = result.oneliner
-            .split(/(?<=다\.|있다\.|한다\.)\s+/)
-            .map(s => s.replace(/^문장\d+:\s*/, '').trim())
-            .filter(s => s.length > 5)
-            .slice(0, 3);
-          const icons = ['📍', '⚠️', '👁'];
-          return sentences.map((s, i) =>
-            `<div class="insight-line"><span class="insight-icon">${icons[i]}</span><span>${s}</span></div>`
-          ).join('');
-        })()}
-      </div>` : ''}
     `;
+  }
+
+  // Shawn's Insight 별도 섹션
+  const insightEl = document.getElementById(`${tab}-insight`);
+  if (insightEl && result.oneliner) {
+    const sentences = result.oneliner
+      .split(/(?<=다\.|있다\.|한다\.)\s+/)
+      .map(s => s.replace(/^문장\d+:\s*|^Shawn's Insight:\s*/i, '').trim())
+      .filter(s => s.length > 5)
+      .slice(0, 3);
+    const labels = ['현황', '리스크', '주목'];
+    const colors = ['#1A7A45', '#C0392B', '#1A5CAD'];
+    insightEl.innerHTML = `
+      <div class="insight-section-label">✦ Shawn's Insight</div>
+      <div class="insight-card">
+        ${sentences.map((s, i) => `
+          <div class="insight-line">
+            <span class="insight-badge" style="background:${colors[i]};">${labels[i]}</span>
+            <span class="insight-text">${s}</span>
+          </div>
+        `).join('')}
+      </div>`;
   }
 
   // AI가 고른 주요 뉴스

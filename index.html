@@ -240,6 +240,13 @@
       border-left:2px solid rgba(255,255,255,0.3);
       padding-left:12px;
     }
+    .insight-line {
+      display:flex; gap:8px; align-items:flex-start;
+      margin-bottom:10px; font-size:14px; font-weight:600;
+      color:#FFFFFF; line-height:1.65; letter-spacing:-0.2px;
+    }
+    .insight-line:last-child { margin-bottom:0; }
+    .insight-icon { flex-shrink:0; font-size:13px; margin-top:2px; }
     .summary-line-wrap {
       padding:14px 24px;
       border-bottom:1px solid #E8F0EB;
@@ -1027,7 +1034,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v16';
+const CACHE_VERSION = 'v17';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1324,7 +1331,17 @@ function renderTabSummary(tab, result) {
       ${result.oneliner ? `
       <div class="summary-oneliner">
         <div class="summary-oneliner-label">✦ Shawn's Insight</div>
-        <div class="summary-oneliner-text">${result.oneliner}</div>
+        ${(() => {
+          const sentences = result.oneliner
+            .split(/(?<=다\.|있다\.|한다\.)\s+/)
+            .map(s => s.replace(/^문장\d+:\s*/, '').trim())
+            .filter(s => s.length > 5)
+            .slice(0, 3);
+          const icons = ['📍', '⚠️', '👁'];
+          return sentences.map((s, i) =>
+            `<div class="insight-line"><span class="insight-icon">${icons[i]}</span><span>${s}</span></div>`
+          ).join('');
+        })()}
       </div>` : ''}
     `;
   }

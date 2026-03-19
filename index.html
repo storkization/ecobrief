@@ -731,7 +731,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v50';
+const CACHE_VERSION = 'v51';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1265,6 +1265,27 @@ async function loadColumn(tab) {
 
   body.style.display = 'block';
   btn.querySelector('span:last-child').textContent = '▲';
+
+  // 개발모드: 더미 칼럼
+  if (DEV_MODE) {
+    renderColumn(tab, `오늘의 ${TAB_LABEL[tab]} 핵심 이슈 📊
+
+개발 모드 더미 칼럼입니다. 실제 배포 후 AI가 생성한 칼럼이 표시됩니다.
+
+---
+### 연준 금리 동결, 우리 지갑엔 어떤 영향이?
+미국 연준이 기준금리를 동결했다는 소식이 들려왔어요. 시장에서는 이미 예상했던 결과라고 하지만, 그 이면에는 복잡한 셈법이 숨어있답니다.
+
+### 고환율 시대, 수출기업은 웃고 있을까?
+원달러 환율이 1,350원대를 유지하면서 수출기업들의 희비가 엇갈리고 있어요. 특히 반도체와 자동차 업계의 반응이 주목됩니다.
+
+### 지금 투자자가 봐야 할 딱 하나의 지표는?
+전문가들은 이번 주 발표될 CPI 수치를 가장 중요한 지표로 꼽고 있어요. 이 숫자 하나가 시장의 방향을 바꿀 수 있기 때문이랍니다.
+
+---
+by. Shawn Kim`);
+    return;
+  }
 
   // 캐시 확인 (스케줄 기반)
   if (columnCache[tab]) {

@@ -733,7 +733,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v48';
+const CACHE_VERSION = 'v49';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -753,6 +753,13 @@ let fxRates = null;
 
 /* ═══════════ INIT ═══════════ */
 document.addEventListener('DOMContentLoaded', () => {
+  // 개발모드 배너
+  if (DEV_MODE) {
+    const banner = document.createElement('div');
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#F59E0B;color:#000;text-align:center;font-size:11px;font-weight:700;padding:4px;font-family:monospace;max-width:480px;margin:0 auto;';
+    banner.textContent = '⚠️ DEV MODE — AI 호출 없음';
+    document.body.appendChild(banner);
+  }
   const d = new Date();
   const days = ['일','월','화','수','목','금','토'];
   const months = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
@@ -898,7 +905,31 @@ function stopLoadingMsg() {
   if (_loadingInterval) { clearInterval(_loadingInterval); _loadingInterval = null; }
 }
 
+/* ═══════════ DEV MODE ═══════════ */
+const DEV_MODE = new URLSearchParams(window.location.search).get('dev') === 'true';
+const DEV_DUMMY = {
+  summary: `줄1: 미국 연준이 기준금리를 동결하면서 글로벌 금융시장의 불확실성이 지속되고 있다.\n줄2: 국내 코스피는 외국인 순매도 영향으로 2,500선 아래로 하락했다.\n줄3: 원달러 환율은 1,350원대에서 등락을 반복하며 투자자들의 관심이 집중되고 있다.`,
+  oneliner: `배경(상황)Why: 이번 금리 동결은 인플레이션 둔화 속도가 예상보다 느려지면서 연준이 조기 인하 기대를 차단하기 위한 선제적 신호입니다. 시장 영향So What: 고금리 장기화는 국내 수출기업의 자금조달 비용을 높이며, 특히 반도체·자동차 섹터의 영업이익 훼손이 불가피합니다. 주목할 점Next Move: 향후 CPI 발표 수치와 연준 의사록에서 금리 인하 시그널 여부를 집중 모니터링해야 합니다.`,
+  footnotes: `줄1: ※ 기준금리(Base Rate) │ 중앙은행이 시중은행에 돈을 빌려줄 때 적용하는 기본 이자율로, 경제 전반의 금리 수준을 결정하는 핵심 지표\n줄3: ※ 원달러 환율 │ 미국 달러 1달러를 사기 위해 필요한 원화 금액`,
+  insightFootnotes: `배경(상황)Why: ※ 인플레이션(Inflation) │ 물가가 지속적으로 오르는 현상으로, 돈의 가치가 떨어지는 것을 의미`,
+  topNews: [
+    { title: '[DEV] 연준 기준금리 동결 결정…시장 반응은?', source: '한국경제', date: new Date(), link: '#' },
+    { title: '[DEV] 코스피 2,480선 하락…외국인 순매도 지속', source: '매일경제', date: new Date(), link: '#' },
+    { title: '[DEV] 원달러 환율 1,355원 마감…달러 강세', source: '연합뉴스', date: new Date(), link: '#' },
+    { title: '[DEV] 삼성전자 실적 발표 앞두고 주가 소폭 반등', source: '서울경제', date: new Date(), link: '#' },
+    { title: '[DEV] 국제유가 배럴당 80달러 돌파…에너지주 강세', source: '조선일보', date: new Date(), link: '#' },
+  ]
+};
+
 async function genTabSummary(tab) {
+  // 개발모드: AI 호출 없이 더미 데이터로 렌더링
+  if (DEV_MODE) {
+    summaryCache[tab] = DEV_DUMMY;
+    renderTabSummary(tab, DEV_DUMMY);
+    updateFrontPreview(tab, DEV_DUMMY.summary);
+    return;
+  }
+
   const cacheKey = `eco_summary_${tab}`;
   const cacheTimeKey = `eco_summary_time_${tab}`;
   const cached = localStorage.getItem(cacheKey);

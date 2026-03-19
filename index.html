@@ -731,7 +731,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v57';
+const CACHE_VERSION = 'v58';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1148,22 +1148,30 @@ function renderTabSummary(tab, result) {
   // Shawn's Insight 별도 섹션
   const insightEl = document.getElementById(`${tab}-insight`);
   if (insightEl && result.oneliner) {
-    const m1 = result.oneliner.match(/배경\(상황\)Why:\s*(.+?)(?=\s*시장 영향So What:|$)/s);
-    const m2 = result.oneliner.match(/시장 영향So What:\s*(.+?)(?=\s*주목할 점Next Move:|$)/s);
-    const m3 = result.oneliner.match(/주목할 점Next Move:\s*(.+?)$/s);
-    let sentences = [m1, m2, m3].map(m => m ? m[1].trim()
-      .replace(/\*\*/g, '')
-      .replace(/^---+\s*#*\s*/gm, '')
-      .replace(/#+\s/g, '')
-      .trim() : null).filter(Boolean);
-    // 폴백: 레이블 파싱 실패 시 문장 끝으로 분리
-    if (sentences.length < 2) {
-      sentences = result.oneliner
-        .split(/(?<=다\.|있다\.|한다\.)\s+/)
-        .map(s => s.replace(/^배경\(상황\)Why:\s*|^시장 영향So What:\s*|^주목할 점Next Move:\s*/i, '').trim())
-        .filter(s => s.length > 5)
-        .slice(0, 3);
+    const cleanOneliner = (result.oneliner || '')
+      .replace(/\*\*/g, '').replace(/^#+\s*/gm, '').replace(/^---+\s*/gm, '');
+
+    // 각 포인트 + 바로 아래 ※각주 함께 파싱
+    function extractPoint(raw, label, nextLabel) {
+      const pattern = nextLabel
+        ? new RegExp(`${label}:\\s*([\\s\\S]*?)(?=${nextLabel}:|$)`)
+        : new RegExp(`${label}:\\s*([\\s\\S]*?)$`);
+      const m = raw.match(pattern);
+      if (!m) return { text: '', footnotes: [] };
+      const block = m[1].trim();
+      const lines = block.split('\n');
+      const text = lines.filter(l => !l.trim().startsWith('※각주:')).join(' ').replace(/\s+/g,' ').trim();
+      const footnotes = lines
+        .filter(l => l.trim().startsWith('※각주:'))
+        .map(l => l.replace(/^※각주:\s*/, '').trim());
+      return { text, footnotes };
     }
+
+    const p1 = extractPoint(cleanOneliner, '배경\\(상황\\)Why', '시장 영향So What');
+    const p2 = extractPoint(cleanOneliner, '시장 영향So What', '주목할 점Next Move');
+    const p3 = extractPoint(cleanOneliner, '주목할 점Next Move', null);
+    const points = [p1, p2, p3].filter(p => p.text.length > 0);
+
     const labels = [
       { ko: '배경(상황) 🌍', en: 'Why' },
       { ko: '시장 영향 📉',  en: 'So What' },
@@ -1171,25 +1179,12 @@ function renderTabSummary(tab, result) {
     ];
     const colors = ['#1A7A45', '#8B4513', '#1A5CAD'];
 
-    // insightFootnotes 파싱
-    const ifRaw = (result.insightFootnotes || '').replace(/\*\*/g, '').replace(/^#+\s*/gm, '').replace(/^---+\s*/gm, '');
-    const ifMap = { 1: [], 2: [], 3: [] };
-    ifRaw.split('\n').forEach(line => {
-      const m = line.match(/^(?:배경\(상황\)Why|포인트1):\s*(.*)/);
-      const m2 = line.match(/^(?:시장 영향So What|포인트2):\s*(.*)/);
-      const m3 = line.match(/^(?:주목할 점Next Move|포인트3):\s*(.*)/);
-      if (m)  ifMap[1].push(m[1].trim());
-      if (m2) ifMap[2].push(m2[1].trim());
-      if (m3) ifMap[3].push(m3[1].trim());
-    });
-
     insightEl.innerHTML = `
       <div class="insight-section-label">💡 쓰리포인트 요약 by Shawn</div>
       <div class="insight-card">
-        ${sentences.map((s, i) => {
-          const fns = ifMap[i + 1] || [];
-          const fnHtml = fns.length
-            ? fns.map(fn => {
+        ${points.map((p, i) => {
+          const fnHtml = p.footnotes.length
+            ? p.footnotes.map(fn => {
                 const parts = fn.split('│');
                 if (parts.length >= 2) {
                   const term = parts[0].replace(/^※\s*/, '').trim();
@@ -1200,12 +1195,12 @@ function renderTabSummary(tab, result) {
               }).join('')
             : '';
           return `
-          <div class="insight-line" style="flex-direction:column;gap:8px;margin-bottom:${i < sentences.length - 1 ? '26px' : '0'};">
+          <div class="insight-line" style="flex-direction:column;gap:8px;margin-bottom:${i < points.length - 1 ? '26px' : '0'};">
             <span style="background:${colors[i]};display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:6px;align-self:flex-start;">
               <span style="font-size:13px;font-weight:800;letter-spacing:-0.2px;color:#fff;">${labels[i].ko}</span>
               <span style="font-size:11px;opacity:0.85;font-weight:600;letter-spacing:0.3px;color:#fff;">${labels[i].en}</span>
             </span>
-            <span class="insight-text" style="font-size:14px;line-height:1.85;">${s}</span>
+            <span class="insight-text" style="font-size:14px;line-height:1.85;">${p.text}</span>
             ${fnHtml}
           </div>`;
         }).join('')}

@@ -863,9 +863,9 @@
     <div class="tab-panel active" id="tab-front">
       <div class="front-coming-soon">
         <div class="big-icon">🗞</div>
-        <p style="color:rgba(255,255,255,0.7); font-weight:700; font-size:16px; margin-bottom:8px;">1면 종합</p>
-        <p>경제·산업·국제 종합을 한눈에 볼 수 있는<br>1면 기능은 준비 중입니다.</p>
-        <p style="margin-top:16px; font-size:12px; color:rgba(255,255,255,0.75);">각 탭에서 종합 브리핑을 먼저 확인해보세요.</p>
+        <p style="color:#1A7A45; font-weight:700; font-size:16px; margin-bottom:8px;">1면 종합</p>
+        <p style="color:#374151;">경제·산업·국제 종합을 한눈에 볼 수 있는<br>1면 기능은 준비 중입니다.</p>
+        <p style="margin-top:16px; font-size:12px; color:#6B7280;">각 탭에서 종합 브리핑을 먼저 확인해보세요.</p>
       </div>
 
       <!-- 미리보기 카드들 (클릭하면 해당 탭으로) -->
@@ -1250,6 +1250,7 @@ async function genTabSummary(tab) {
     if (parsed.summary) {
       summaryCache[tab] = parsed;
       renderTabSummary(tab, summaryCache[tab]);
+      updateFrontPreview(tab, parsed.summary);
       if (tab === 'economy') {
         renderBriefing(summaryCache[tab].briefing || '');
         updateBriefingTimestamp();
@@ -1379,11 +1380,18 @@ function renderTabSummary(tab, result) {
   // Shawn's Insight 별도 섹션
   const insightEl = document.getElementById(`${tab}-insight`);
   if (insightEl && result.oneliner) {
-    const sentences = result.oneliner
-      .split(/(?<=다\.|있다\.|한다\.)\s+/)
-      .map(s => s.replace(/^문장\d+:\s*|^Shawn's Insight:\s*/i, '').trim())
-      .filter(s => s.length > 5)
-      .slice(0, 3);
+    const m1 = result.oneliner.match(/문장1:\s*(.+?)(?=\s*문장2:|$)/s);
+    const m2 = result.oneliner.match(/문장2:\s*(.+?)(?=\s*문장3:|$)/s);
+    const m3 = result.oneliner.match(/문장3:\s*(.+?)$/s);
+    let sentences = [m1, m2, m3].map(m => m ? m[1].trim() : null).filter(Boolean);
+    // 폴백: 레이블 파싱 실패 시 문장 끝으로 분리
+    if (sentences.length < 2) {
+      sentences = result.oneliner
+        .split(/(?<=다\.|있다\.|한다\.)\s+/)
+        .map(s => s.replace(/^문장\d+:\s*/i, '').trim())
+        .filter(s => s.length > 5)
+        .slice(0, 3);
+    }
     const labels = ['흐름', '변수', '포인트'];
     const colors = ['#1A7A45', '#8B4513', '#1A5CAD'];
     insightEl.innerHTML = `

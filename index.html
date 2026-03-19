@@ -731,7 +731,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v53';
+const CACHE_VERSION = 'v55';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1058,15 +1058,16 @@ function renderTabSummary(tab, result) {
     console.log('[SUMMARY RAW]', JSON.stringify(result.summary));
 
     // 줄1:/줄2:/줄3: 패턴 (한줄/멀티라인 모두 대응)
-    const m1 = result.summary.match(/줄1:\s*(.+?)(?=\s*줄2:|$)/s);
-    const m2 = result.summary.match(/줄2:\s*(.+?)(?=\s*줄3:|$)/s);
-    const m3 = result.summary.match(/줄3:\s*(.+?)$/s);
+    const summaryClean = (result.summary || '').replace(/\*\*/g, '').replace(/^#+\s*/gm, '').replace(/^---+\s*/gm, '');
+    const m1 = summaryClean.match(/줄1:\s*(.+?)(?=\s*줄2:|$)/s);
+    const m2 = summaryClean.match(/줄2:\s*(.+?)(?=\s*줄3:|$)/s);
+    const m3 = summaryClean.match(/줄3:\s*(.+?)$/s);
     const lines = [m1, m2, m3].map(m => m ? m[1].trim() : null).filter(Boolean);
     console.log('[PARSED LINES]', lines);
 
     // 패턴 매칭 실패 시 한국어 문장 끝으로 분리 폴백
     const finalLines = lines.length >= 2 ? lines :
-      result.summary
+      summaryClean
         .split(/(?<=다\.|했다\.|이다\.)\s+/)
         .map(l => l.replace(/^줄\d+:\s*/, '').trim())
         .filter(l => l.length > 10)
@@ -1094,11 +1095,11 @@ function renderTabSummary(tab, result) {
       : '';
     const tabLabel = TAB_LABEL[tab];
 
-    // footnotes 줄별 파싱 (줄1:/줄2:/줄3:)
-    const footnotesRaw = result.footnotes || '';
+    // footnotes 줄별 파싱 (줄1:/줄2:/줄3: — **볼드** 마크다운 제거 후 파싱)
+    const footnotesRaw = (result.footnotes || '').replace(/\*\*/g, '').replace(/^#+\s*/gm, '').replace(/^---+\s*/gm, '');
     const fnMap = { 1: [], 2: [], 3: [] };
     footnotesRaw.split('\n').forEach(line => {
-      const m = line.match(/^줄([123]):\s*(.*)/);
+      const m = line.match(/줄([123]):\s*(.*)/);
       if (m) fnMap[Number(m[1])].push(m[2].trim());
     });
 
@@ -1171,7 +1172,7 @@ function renderTabSummary(tab, result) {
     const colors = ['#1A7A45', '#8B4513', '#1A5CAD'];
 
     // insightFootnotes 파싱
-    const ifRaw = result.insightFootnotes || '';
+    const ifRaw = (result.insightFootnotes || '').replace(/\*\*/g, '').replace(/^#+\s*/gm, '').replace(/^---+\s*/gm, '');
     const ifMap = { 1: [], 2: [], 3: [] };
     ifRaw.split('\n').forEach(line => {
       const m = line.match(/^(?:배경\(상황\)Why|포인트1):\s*(.*)/);

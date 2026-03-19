@@ -251,7 +251,7 @@
     .insight-icon { flex-shrink:0; font-size:13px; margin-top:2px; }
     .insight-section-label {
       font-family:'Noto Sans KR', sans-serif;
-      font-size:12px; font-weight:800;
+      font-size:14px; font-weight:800;
       color:#1A7A45;
       letter-spacing:-0.3px;
       margin: 18px 16px 8px;
@@ -954,7 +954,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v44';
+const CACHE_VERSION = 'v45';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1395,7 +1395,7 @@ function renderTabSummary(tab, result) {
               <span style="font-size:13px;font-weight:800;letter-spacing:-0.2px;color:#fff;">${labels[i].ko}</span>
               <span style="font-size:11px;opacity:0.85;font-weight:600;letter-spacing:0.3px;color:#fff;">${labels[i].en}</span>
             </span>
-            <span class="insight-text" style="font-size:15px;line-height:1.85;">${s}</span>
+            <span class="insight-text" style="font-size:14px;line-height:1.85;">${s}</span>
             ${fnHtml}
           </div>`;
         }).join('')}

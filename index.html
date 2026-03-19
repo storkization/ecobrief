@@ -731,7 +731,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v51';
+const CACHE_VERSION = 'v52';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -891,6 +891,7 @@ function setLoadingMsg(tab, phase) {
         <div style="font-family:'Playfair Display',serif; font-size:16px; font-weight:900; color:#111827; letter-spacing:-0.3px; margin-bottom:20px;">Shawn Kim's Daily Briefing</div>
         <div class="dots" style="margin-bottom:16px;"><span></span><span></span><span></span></div>
         <div style="color:#111827; font-size:13px; font-weight:600; line-height:1.6;">${msg}</div>
+        <div style="margin-top:16px; font-size:11px; color:#9CA3AF; line-height:1.6;">AI 분석 중 · 최대 30~50초 소요될 수 있어요</div>
       </div>`;
     msgIdx++;
   }

@@ -1048,9 +1048,9 @@ const CATEGORY_CHIPS = {
 };
 
 const SUMMARY_QUERIES = {
-  economy: ['경제정책 금리', '거시경제 성장률 물가', '환율 외환', '고용 노동'],
-  industry:['반도체 전자', '자동차 배터리', '바이오 제약', '건설 부동산', '재계 경영'],
-  global:  ['미국 연준 관세', '중국 경제', '국제유가 중동', '유럽 일본 신흥국'],
+  economy: ['한국은행 금리', '원달러 환율 외환', '코스피 증시 금융시장', '물가 인플레이션 소비', '수출 무역 경상수지', '가계부채 대출', '경제 오늘 주요뉴스'],
+  industry:['반도체 전자', '자동차 배터리 전기차', '바이오 헬스 제약', '건설 부동산', '경영 재계 M&A'],
+  global:  ['미국 연준 Fed 관세 무역', '중국 경제 위안화 무역분쟁', '일본 엔화 닛케이 일본은행', '유럽 ECB 유로존 독일', '국제유가 OPEC 중동 에너지', '국제경제 오늘 주요뉴스'],
 };
 
 const INDICES = [
@@ -1081,7 +1081,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v25';
+const CACHE_VERSION = 'v27';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1298,7 +1298,9 @@ async function genTabSummary(tab) {
   // AI 호출
   try {
     setLoadingMsg(tab, 'ai');
-    const headlines = unique.slice(0, 25).map(n => n.title);
+    const headlines = unique.slice(0, 25).map(n =>
+      n.description ? `${n.title}\n   → ${n.description.slice(0, 100)}` : n.title
+    );
     console.log('[BRIEFING] 호출 시작, headlines:', headlines.length);
     const briefingController = new AbortController();
     const briefingTimer = setTimeout(() => briefingController.abort(), 55000);

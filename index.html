@@ -951,7 +951,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v40';
+const CACHE_VERSION = 'v42';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1297,13 +1297,19 @@ function renderTabSummary(tab, result) {
         <div class="summary-report-date">${dateStr}${slotBadge}</div>
       </div>
       ${finalLines.map((line, i) => {
-        const isBullet = line.includes('•');
+        // 마크다운 잔재 제거
+        const cleaned = line
+          .replace(/\*\*/g, '')
+          .replace(/^---+\s*#*\s*/gm, '')
+          .replace(/#+\s/g, '')
+          .trim();
+        const isBullet = cleaned.includes('•');
         const lineContent = isBullet
           ? '<ul style="list-style:none;padding:0;margin:0;">' +
-            line.split(/•/).map(l => l.trim()).filter(l => l.length > 0).map(l =>
+            cleaned.split(/•/).map(l => l.trim()).filter(l => l.length > 0).map(l =>
               `<li style="display:flex;gap:8px;margin-bottom:6px;"><span style="color:#111827;font-weight:700;flex-shrink:0;">•</span><span>${l}</span></li>`
             ).join('') + '</ul>'
-          : line;
+          : cleaned;
         const fns = fnMap[i + 1] || [];
         const fnHtml = fns.length
           ? fns.map(fn => {
@@ -1382,7 +1388,7 @@ function renderTabSummary(tab, result) {
               <span style="font-size:13px;font-weight:800;letter-spacing:-0.2px;color:#fff;">${labels[i].ko}</span>
               <span style="font-size:11px;opacity:0.85;font-weight:600;letter-spacing:0.3px;color:#fff;">${labels[i].en}</span>
             </span>
-            <span class="insight-text" style="font-size:15px;line-height:1.8;">${s}</span>
+            <span class="insight-text" style="font-size:13px;line-height:1.8;">${s}</span>
             ${fnHtml}
           </div>`;
         }).join('')}

@@ -734,13 +734,11 @@
         <div class="header-date" id="headerDate"></div>
       </div>
     </div>
-    <div class="header-sub" style="flex-direction:column;align-items:flex-start;gap:3px;margin-top:6px;">
+    <div class="header-sub" style="flex-direction:column;align-items:flex-start;gap:4px;margin-top:6px;">
       <span class="header-sub-main" style="font-size:12px;">숲을 보는 숀킴의 경제 채널</span>
-      <div style="display:flex;align-items:center;gap:5px;">
-        <span class="header-sub-by" style="font-size:10px;">Created by <em>Shawn Kim</em></span>
-        <span class="header-sub-divider">·</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="header-sub-by" style="font-size:10px;">Created by <em>김도훈</em></span>
         <span class="header-sub-by" style="font-size:10px;">Edited by <em>Shawn's AI</em></span>
-        <span class="header-sub-divider">·</span>
         <span class="header-sub-model">AI · claude-haiku-4</span>
       </div>
     </div>
@@ -954,7 +952,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v46';
+const CACHE_VERSION = 'v47';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {

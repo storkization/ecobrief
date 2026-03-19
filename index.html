@@ -948,7 +948,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v30';
+const CACHE_VERSION = 'v31';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1181,6 +1181,7 @@ async function genTabSummary(tab) {
       briefing: j.briefing || '',
       oneliner: j.oneliner || '',
       footnotes: j.footnotes || '',
+      insightFootnotes: j.insightFootnotes || '',
       topNews: unique.slice(0, 15),
     };
     summaryCache[tab] = result;
@@ -1295,18 +1296,41 @@ function renderTabSummary(tab, result) {
       { ko: '주목할 점', en: 'Focus' },
     ];
     const colors = ['#1A7A45', '#8B4513', '#1A5CAD'];
+
+    // insightFootnotes 파싱
+    const ifRaw = result.insightFootnotes || '';
+    const ifMap = { 1: [], 2: [], 3: [] };
+    ifRaw.split('\n').forEach(line => {
+      const m = line.match(/^포인트([123]):\s*(.*)/);
+      if (m) ifMap[Number(m[1])].push(m[2].trim());
+    });
+
     insightEl.innerHTML = `
-      <div class="insight-section-label">💡 Three Sentence 브리핑 by Shawn</div>
+      <div class="insight-section-label">💡 쓰리포인트 요약 by Shawn</div>
       <div class="insight-card">
-        ${sentences.map((s, i) => `
+        ${sentences.map((s, i) => {
+          const fns = ifMap[i + 1] || [];
+          const fnHtml = fns.length
+            ? fns.map(fn => {
+                const parts = fn.split('│');
+                if (parts.length >= 2) {
+                  const term = parts[0].replace(/^※\s*/, '').trim();
+                  const desc = parts.slice(1).join('│').trim();
+                  return `<div style="margin-top:8px;padding:8px 10px;background:rgba(255,255,255,0.1);border-left:2px solid rgba(255,255,255,0.3);border-radius:0 6px 6px 0;font-size:11px;color:rgba(255,255,255,0.85);line-height:1.6;">※ <span style="font-weight:700;">${term}</span> │ ${desc}</div>`;
+                }
+                return `<div style="margin-top:8px;padding:8px 10px;background:rgba(255,255,255,0.1);border-left:2px solid rgba(255,255,255,0.3);border-radius:0 6px 6px 0;font-size:11px;color:rgba(255,255,255,0.85);line-height:1.6;">${fn}</div>`;
+              }).join('')
+            : '';
+          return `
           <div class="insight-line" style="flex-direction:column;gap:6px;margin-bottom:${i < sentences.length - 1 ? '18px' : '0'};">
             <span style="background:${colors[i]};display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;align-self:flex-start;">
               <span style="font-size:10px;font-weight:800;letter-spacing:-0.2px;color:#fff;">${labels[i].ko}</span>
               <span style="font-size:8px;opacity:0.7;font-weight:500;letter-spacing:0.5px;color:#fff;">${labels[i].en}</span>
             </span>
             <span class="insight-text">${s}</span>
-          </div>
-        `).join('')}
+            ${fnHtml}
+          </div>`;
+        }).join('')}
       </div>`;
   }
 

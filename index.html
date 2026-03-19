@@ -307,7 +307,17 @@
       letter-spacing:-0.1px;
     }
 
-    /* ── 1면 카드 ── */
+    .summary-footnote {
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: #F8FAF8;
+      border-left: 2px solid #9CA3AF;
+      border-radius: 0 6px 6px 0;
+      font-size: 12px;
+      color: #4B5563;
+      line-height: 1.65;
+    }
+    .summary-footnote::first-line { font-weight: 600; }
     .front-section {
       background:#FFFFFF;
       border-radius:14px; padding:20px; margin-bottom:12px;
@@ -1072,7 +1082,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v23';
+const CACHE_VERSION = 'v24';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1309,6 +1319,7 @@ async function genTabSummary(tab) {
       summary: j.summary || '',
       briefing: j.briefing || '',
       oneliner: j.oneliner || '',
+      footnotes: j.footnotes || '',
       topNews: unique.slice(0, 15),
     };
     summaryCache[tab] = result;
@@ -1362,6 +1373,14 @@ function renderTabSummary(tab, result) {
     const dateStr = `${d.getMonth()+1}월 ${d.getDate()}일 · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} 기준`;
     const tabLabel = TAB_LABEL[tab];
 
+    // footnotes 줄별 파싱 (줄1:/줄2:/줄3:)
+    const footnotesRaw = result.footnotes || '';
+    const fnMap = { 1: [], 2: [], 3: [] };
+    footnotesRaw.split('\n').forEach(line => {
+      const m = line.match(/^줄([123]):\s*(.*)/);
+      if (m) fnMap[Number(m[1])].push(m[2].trim());
+    });
+
     card.innerHTML = `
       <div class="summary-report-header">
         <div class="summary-report-eyebrow">Shawn Kim's Daily Briefing</div>
@@ -1376,10 +1395,15 @@ function renderTabSummary(tab, result) {
               `<li style="display:flex;gap:8px;margin-bottom:6px;"><span style="color:#111827;font-weight:700;flex-shrink:0;">•</span><span>${l}</span></li>`
             ).join('') + '</ul>'
           : line;
+        const fns = fnMap[i + 1] || [];
+        const fnHtml = fns.length
+          ? fns.map(fn => `<div class="summary-footnote">${fn}</div>`).join('')
+          : '';
         return `
         <div class="summary-line-wrap ${tags[i] ? tags[i].wrap : ''}">
           <div class="summary-line-tag ${tags[i] ? tags[i].cls : 'tag-issue'}">${tags[i] ? tags[i].label : ''}</div>
           <div class="summary-line-text">${lineContent}</div>
+          ${fnHtml}
         </div>`;
       }).join('')}
     `;

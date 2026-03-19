@@ -73,7 +73,23 @@ ${headlineText}
 (2~5번 동일)
 
 💡 오늘의 한마디: [경제 초보자도 이해할 수 있는 오늘 ${label} 핵심 메시지]
-[/BRIEFING]`
+[/BRIEFING]
+
+[FOOTNOTES]
+SUMMARY의 줄1/줄2/줄3에 등장한 용어 중, 경제 입문자가 "이게 뭐지?" 할 만한 것을 줄별로 1~2개 골라 부연설명을 달아줘.
+
+규칙:
+- 반드시 "줄1:", "줄2:", "줄3:" 레이블로 어느 줄의 용어인지 명시할 것
+- 설명이 필요 없는 줄은 생략
+- 형식: ※ [용어]? │ [설명]
+- 단순 개념(매파 발언, 긴축 등)은 한 문장으로 쉽게 설명
+- 법/정책/지수처럼 구체적 내용이 있는 건 "1. ... 2. ... 3. ..." 번호 리스트로 내용 나열
+- 설명은 경제 초보자도 이해할 수 있게 쉽고 간결하게
+
+예시:
+줄2: ※ 환율안정 3법이란? │ 1. 국내시장 복귀계좌(RIA) 도입 2. 기업 해외 배당금 익금불산입 확대 3. 환헤지 상품 세제 지원 신설
+줄3: ※ 매파적 기조란? │ 물가를 잡기 위해 금리 인하를 미루고 긴축을 유지하겠다는 강경한 통화정책 태도
+[/FOOTNOTES]`
         }]
       })
     });
@@ -89,10 +105,12 @@ ${headlineText}
     const summaryMatch = fullText.match(/\[SUMMARY\]([\s\S]*?)(?=\[\/SUMMARY\]|\[ONELINER\]|\[BRIEFING\]|$)/);
     const onelinerMatch = fullText.match(/\[ONELINER\]([\s\S]*?)(?=\[\/ONELINER\]|\[BRIEFING\]|$)/);
     const briefingMatch = fullText.match(/\[BRIEFING\]([\s\S]*?)(?=\[\/BRIEFING\]|$)/);
+    const footnotesMatch = fullText.match(/\[FOOTNOTES\]([\s\S]*?)(?=\[\/FOOTNOTES\]|$)/);
     const summary = summaryMatch ? summaryMatch[1].trim() : '';
     const briefing = briefingMatch ? briefingMatch[1].trim() : fullText;
     const oneliner = onelinerMatch ? onelinerMatch[1].trim() : '';
-    res.status(200).json({ briefing, summary, oneliner });
+    const footnotes = footnotesMatch ? footnotesMatch[1].trim() : '';
+    res.status(200).json({ briefing, summary, oneliner, footnotes });
 
   } catch (err) {
     res.status(500).json({ error: err.message });

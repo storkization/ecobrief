@@ -72,12 +72,12 @@
     .header-top { display:flex; justify-content:space-between; align-items:flex-end; }
     .app-logo {
       font-family:'Playfair Display', serif;
-      font-size:21px; font-weight:900;
+      font-size:25px; font-weight:900;
       letter-spacing:-0.5px;
       color:#111827;
     }
     .app-logo em { color:#1A7A45; font-style:normal; }
-    .app-logo span { color:#6B7280; font-size:11px; font-family:'IBM Plex Mono',monospace; font-weight:400; letter-spacing:1px; margin-left:6px; vertical-align:middle; }
+    .app-logo span { color:#6B7280; font-size:12px; font-family:'IBM Plex Mono',monospace; font-weight:400; letter-spacing:1px; margin-left:6px; vertical-align:middle; }
     .header-right { text-align:right; }
     .header-date {
       font-family:'IBM Plex Mono', monospace;
@@ -251,7 +251,7 @@
     .insight-icon { flex-shrink:0; font-size:13px; margin-top:2px; }
     .insight-section-label {
       font-family:'Noto Sans KR', sans-serif;
-      font-size:15px; font-weight:800;
+      font-size:12px; font-weight:800;
       color:#1A7A45;
       letter-spacing:-0.3px;
       margin: 18px 16px 8px;
@@ -734,12 +734,15 @@
         <div class="header-date" id="headerDate"></div>
       </div>
     </div>
-    <div class="header-sub">
-      <span class="header-sub-main">숲을 보는 숀킴의 경제 채널</span>
-      <span class="header-sub-divider">·</span>
-      <span class="header-sub-by">Created by <em>Shawn Kim</em></span>
-      <span class="header-sub-divider">·</span>
-      <span class="header-sub-model">AI · claude-sonnet-4</span>
+    <div class="header-sub" style="flex-direction:column;align-items:flex-start;gap:3px;margin-top:6px;">
+      <span class="header-sub-main" style="font-size:12px;">숲을 보는 숀킴의 경제 채널</span>
+      <div style="display:flex;align-items:center;gap:5px;">
+        <span class="header-sub-by" style="font-size:10px;">Created by <em>Shawn Kim</em></span>
+        <span class="header-sub-divider">·</span>
+        <span class="header-sub-by" style="font-size:10px;">Edited by <em>Shawn's AI</em></span>
+        <span class="header-sub-divider">·</span>
+        <span class="header-sub-model">AI · claude-haiku-4</span>
+      </div>
     </div>
   </div>
 
@@ -951,7 +954,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v42';
+const CACHE_VERSION = 'v44';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -972,10 +975,10 @@ let fxRates = null;
 /* ═══════════ INIT ═══════════ */
 document.addEventListener('DOMContentLoaded', () => {
   const d = new Date();
-  const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
-  const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  const days = ['일','월','화','수','목','금','토'];
+  const months = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
   document.getElementById('headerDate').innerHTML =
-    `<span style="color:#1A7A45;font-weight:700;">${days[d.getDay()]}</span> · ${months[d.getMonth()]} ${String(d.getDate()).padStart(2,'0')}, ${d.getFullYear()}`;
+    `<span style="color:#1A7A45;font-weight:700;font-size:11px;">${days[d.getDay()]}요일</span> · <span style="font-size:11px;">${months[d.getMonth()]} ${d.getDate()}일, ${d.getFullYear()}</span>`;
 
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
@@ -1338,7 +1341,11 @@ function renderTabSummary(tab, result) {
     const m1 = result.oneliner.match(/배경\(상황\)Why:\s*(.+?)(?=\s*시장 영향So What:|$)/s);
     const m2 = result.oneliner.match(/시장 영향So What:\s*(.+?)(?=\s*주목할 점Next Move:|$)/s);
     const m3 = result.oneliner.match(/주목할 점Next Move:\s*(.+?)$/s);
-    let sentences = [m1, m2, m3].map(m => m ? m[1].trim() : null).filter(Boolean);
+    let sentences = [m1, m2, m3].map(m => m ? m[1].trim()
+      .replace(/\*\*/g, '')
+      .replace(/^---+\s*#*\s*/gm, '')
+      .replace(/#+\s/g, '')
+      .trim() : null).filter(Boolean);
     // 폴백: 레이블 파싱 실패 시 문장 끝으로 분리
     if (sentences.length < 2) {
       sentences = result.oneliner
@@ -1388,7 +1395,7 @@ function renderTabSummary(tab, result) {
               <span style="font-size:13px;font-weight:800;letter-spacing:-0.2px;color:#fff;">${labels[i].ko}</span>
               <span style="font-size:11px;opacity:0.85;font-weight:600;letter-spacing:0.3px;color:#fff;">${labels[i].en}</span>
             </span>
-            <span class="insight-text" style="font-size:13px;line-height:1.8;">${s}</span>
+            <span class="insight-text" style="font-size:15px;line-height:1.85;">${s}</span>
             ${fnHtml}
           </div>`;
         }).join('')}
@@ -1502,7 +1509,7 @@ function renderColumn(tab, text) {
     .replace(/^###\s(.+)$/gm, '<h3 style="font-size:14px;font-weight:800;color:#1A7A45;margin:18px 0 8px;letter-spacing:-0.2px;">$1</h3>')
     .replace(/^---$/gm, '<hr style="border:none;border-top:1px solid #E5EDE8;margin:16px 0;">')
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/^(?!<)(.+)$/gm, '<p style="font-size:14px;color:#374151;line-height:1.85;margin:0 0 8px;">$1</p>');
+    .replace(/^(?!<)(.+)$/gm, '<p style="font-size:14px;color:#111827;line-height:1.85;margin:0 0 8px;">$1</p>');
 
   body.innerHTML = `
     <div style="background:#FAFFFD;border:1px solid #D4E8DA;border-top:none;border-radius:0 0 12px 12px;padding:20px 20px 24px;">

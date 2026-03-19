@@ -642,109 +642,7 @@
       font-size:10px; color:var(--text-dim); margin-top:3px;
     }
 
-    /* ════════════ AI TAB ════════════ */
-    .ai-top {
-      padding:20px 0 20px;
-      text-align:center;
-    }
-    .ai-orb {
-      width:68px; height:68px;
-      margin:0 auto 18px;
-      background: linear-gradient(135deg, #1A4FC4, #2563EB);
-      border-radius:20px;
-      display:flex; align-items:center; justify-content:center;
-      font-size:28px;
-      box-shadow:0 8px 32px rgba(26,79,196,.35);
-    }
-    .ai-title {
-      font-family:'Playfair Display', serif;
-      font-size:22px; font-weight:900;
-      color:#FFFFFF; margin-bottom:8px;
-    }
-    .ai-desc {
-      font-size:13px; color:rgba(255,255,255,0.65);
-      line-height:1.6;
-    }
-
-    .ai-section {
-      margin:0 0 14px;
-      background:#FFFFFF;
-      border-radius:var(--radius);
-      border:none;
-      box-shadow:0 2px 8px rgba(0,0,0,0.10);
-      overflow:hidden;
-    }
-    .ai-section-head {
-      padding:12px 16px;
-      font-family:'IBM Plex Mono', monospace;
-      font-size:9px; color:var(--text-muted);
-      text-transform:uppercase; letter-spacing:2px;
-      border-bottom:1px solid #F3F4F6;
-    }
-    .ai-input-wrap { padding:14px 16px; }
-    .ai-key-input {
-      width:100%;
-      background:#F9FAFB;
-      border:1px solid #E5E7EB;
-      border-radius:8px;
-      padding:10px 14px;
-      color:#111827;
-      font-family:'IBM Plex Mono', monospace;
-      font-size:12px; outline:none;
-    }
-    .ai-key-input:focus { border-color:var(--accent); }
-    .ai-hint {
-      font-size:11px; color:var(--text-muted);
-      margin-top:8px; line-height:1.5;
-    }
-    .ai-hint a { color:var(--accent); }
-
-    .ai-btn {
-      display:block;
-      width:100%;
-      margin:0 0 16px;
-      padding:17px;
-      background:var(--accent);
-      border:none; border-radius:var(--radius);
-      color:#fff;
-      font-family:'Noto Sans KR', -apple-system, sans-serif;
-      font-size:15px; font-weight:700;
-      cursor:pointer; text-align:center;
-      transition:all .2s;
-      letter-spacing:-0.3px;
-      box-shadow:0 4px 14px rgba(26,79,196,0.3);
-    }
-    .ai-btn:active { transform:scale(.98); opacity:.9; }
-    .ai-btn:disabled { opacity:.45; cursor:not-allowed; transform:none; }
-
-    .ai-result {
-      margin:0 0 16px;
-      padding:20px;
-      background:#FFFFFF;
-      border-radius:var(--radius);
-      border-left:3px solid var(--accent);
-      box-shadow:0 2px 8px rgba(0,0,0,0.10);
-      display:none;
-    }
-    .ai-result.show { display:block; }
-    .ai-result-head {
-      display:flex; align-items:center; gap:8px;
-      font-family:'IBM Plex Mono', monospace;
-      font-size:9px; color:var(--accent);
-      text-transform:uppercase; letter-spacing:2px;
-      margin-bottom:14px;
-    }
-    .ai-result-head::before {
-      content:''; width:6px; height:6px;
-      background:var(--accent); border-radius:50%;
-      flex-shrink:0;
-    }
-    .ai-result-text {
-      font-size:14px; line-height:1.75;
-      color:#111827; white-space:pre-line;
-    }
-
-    /* ── BRIEFING TYPOGRAPHY ── */
+    /* ════════════ BRIEFING TYPOGRAPHY ════════════ */
     #briefing-text { font-size:14px; line-height:1.9; color:#111827; }
 
     .b-h1 {
@@ -853,7 +751,6 @@
     <button class="tab-btn" data-tab="global">🌐 국제</button>
     <button class="tab-btn" data-tab="stocks">📈 주식</button>
     <button class="tab-btn" data-tab="fx">💱 환율</button>
-    <button class="tab-btn" data-tab="ai">✨ AI</button>
   </div>
 
   <!-- CHIPS (뉴스 탭용) -->
@@ -980,36 +877,6 @@
       <div class="fx-grid" id="fx-grid"></div>
     </div>
 
-    <!-- ▸ AI -->
-    <div class="tab-panel" id="tab-ai">
-      <div class="ai-top">
-        <div class="ai-orb">✨</div>
-        <div class="ai-title">AI 경제 브리핑</div>
-        <div class="ai-desc">오늘의 주요 뉴스를 AI가<br>핵심만 요약해 드립니다</div>
-      </div>
-
-      <div class="ai-section">
-        <div class="ai-section-head">Anthropic API Key</div>
-        <div class="ai-input-wrap">
-          <input type="password" class="ai-key-input" id="apiKey"
-            placeholder="sk-ant-api03-..." oninput="saveKey(this.value)">
-          <div class="ai-hint">
-            💡 <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>에서 발급<br>
-            키는 이 기기에만 저장되며 외부로 전송되지 않습니다
-          </div>
-        </div>
-      </div>
-
-      <button class="ai-btn" id="briefBtn" onclick="genBriefing()">
-        ✨ 오늘의 경제 브리핑 생성
-      </button>
-
-      <div class="ai-result" id="aiResult">
-        <div class="ai-result-head">AI BRIEFING</div>
-        <div class="ai-result-text" id="aiText"></div>
-      </div>
-    </div>
-
   </div><!-- /content -->
 </div><!-- /app -->
 
@@ -1081,7 +948,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v27';
+const CACHE_VERSION = 'v28';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1098,7 +965,6 @@ let summaryCache = {};    // key: "economy" | "industry" | "global"
 let currentTab = 'front';
 let currentChip = {};     // key: tab → chip id
 let fxRates = null;
-let apiKey = localStorage.getItem('eco_api_key') || '';
 
 /* ═══════════ INIT ═══════════ */
 document.addEventListener('DOMContentLoaded', () => {
@@ -1106,8 +972,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const days = ['일','월','화','수','목','금','토'];
   document.getElementById('headerDate').textContent =
     `${d.getFullYear()}. ${String(d.getMonth()+1).padStart(2,'0')}. ${String(d.getDate()).padStart(2,'0')} ${days[d.getDay()]}요일`;
-
-  if (apiKey) document.getElementById('apiKey').value = apiKey;
 
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
@@ -1260,10 +1124,6 @@ async function genTabSummary(tab) {
       summaryCache[tab] = parsed;
       renderTabSummary(tab, summaryCache[tab]);
       updateFrontPreview(tab, parsed.summary);
-      if (tab === 'economy') {
-        renderBriefing(summaryCache[tab].briefing || '');
-        updateBriefingTimestamp();
-      }
       return;
     }
   }
@@ -1329,10 +1189,6 @@ async function genTabSummary(tab) {
     stopLoadingMsg();
     renderTabSummary(tab, result);
     updateFrontPreview(tab, result.summary);
-    if (tab === 'economy') {
-      renderBriefing(result.briefing);
-      updateBriefingTimestamp();
-    }
   } catch(err) {
     console.error('[BRIEFING ERROR]', err.message, err);
     stopLoadingMsg();
@@ -1433,7 +1289,7 @@ function renderTabSummary(tab, result) {
         .filter(s => s.length > 5)
         .slice(0, 3);
     }
-    const labels = ['흐름', '변수', '포인트'];
+    const labels = ['Why', 'So What', 'Focus'];
     const colors = ['#1A7A45', '#8B4513', '#1A5CAD'];
     insightEl.innerHTML = `
       <div class="insight-section-label">💡 원포인트 요약 by Shawn</div>
@@ -1640,128 +1496,6 @@ async function loadFX(){
     }).join('');
   } catch {
     document.getElementById('usdkrw').textContent = 'ERR';
-  }
-}
-
-/* ═══════════ BRIEFING RENDER ═══════════ */
-function updateBriefingTimestamp() {
-  const el = document.getElementById('briefing-timestamp');
-  if (!el) return;
-  const t = localStorage.getItem('eco_summary_time_economy');
-  const d = t ? new Date(Number(t)) : new Date();
-  el.textContent = `${d.getMonth()+1}월 ${d.getDate()}일 · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} 기준`;
-}
-
-function renderBriefing(text) {
-  const el = document.getElementById('briefing-text');
-  if (!el) return;
-  if (!text) {
-    el.innerHTML = `<p style="color:#6B7280;font-size:13px;">브리핑 데이터가 없습니다.</p>`;
-    return;
-  }
-  const lines = text.split('\n');
-  let html = '';
-  for (let line of lines) {
-    line = line.trim();
-    if (!line) continue;
-    line = line.replace(/^#{1,3}\s*/, '');
-    if (/^[1-9️⃣🔟]/.test(line) && (line.includes('️⃣') || line.includes('🔟'))) {
-      html += `<div class="b-h1">${line.replace(/\*\*/g,'')}</div>`;
-    } else if (line.startsWith('📌')) {
-      html += `<div class="b-body"><span class="b-label b-label-bg">📌 배경</span>${highlightKeywords(line.replace('📌','').replace(/^[\s|:·]+/,''))}</div>`;
-    } else if (line.startsWith('📊')) {
-      html += `<div class="b-body"><span class="b-label b-label-stat">📊 영향</span>${highlightKeywords(line.replace('📊','').replace(/^[\s|:·]+/,''))}</div>`;
-    } else if (line.startsWith('💼') || line.startsWith('🔮')) {
-      const label = line.startsWith('💼') ? '💼 액션' : '🔮 전망';
-      html += `<div class="b-body"><span class="b-label b-label-out">${label}</span>${highlightKeywords(line.slice(2).replace(/^[\s|:·]+/,''))}</div>`;
-    } else if (line.startsWith('💡')) {
-      html += `<div class="b-point">${line}</div>`;
-    } else if (line.length > 0) {
-      html += `<div class="b-body">${highlightKeywords(line.replace(/\*\*/g,''))}</div>`;
-    }
-  }
-  el.innerHTML = html;
-}
-
-function highlightKeywords(text) {
-  text = text.replace(/\*\*(.+?)\*\*/g, '<span class="b-bold">$1</span>');
-  text = text.replace(/(\d+\.?\d*%)/g, '<span class="b-bold b-underline">$1</span>');
-  text = text.replace(/([\d,]+원|[$]\d+|\d+달러)/g, '<span class="b-bold">$1</span>');
-  return text;
-}
-
-/* ═══════════ AI ═══════════ */
-function saveKey(v){ apiKey=v; localStorage.setItem('eco_api_key',v); }
-
-async function genBriefing(){
-  if(!apiKey){ alert('API 키를 입력해주세요'); return; }
-  const news = newsCache['economy-summary'] || [];
-  if(!news.length){ alert('경제종합 탭을 먼저 로드해주세요'); return; }
-
-  const btn = document.getElementById('briefBtn');
-  btn.disabled = true; btn.textContent = '⏳ 생성 중...';
-
-  const headlines = news.map((n,i)=>`${i+1}. [${n.source}] ${n.title}`).join('\n');
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key':apiKey,
-        'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-access':'true'
-      },
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        messages:[{ role:'user', content:
-          `다음 경제 뉴스 헤드라인을 바탕으로 오늘의 브리핑을 작성해주세요:\n\n${headlines}\n\n형식:\n📌 오늘의 핵심 이슈 (2줄)\n\n🔍 주목 뉴스 TOP 3 (각 항목 1-2줄 해설)\n\n💡 투자자 체크포인트\n\n간결하고 실용적으로 작성해주세요.`
-        }]
-      })
-    });
-    const j = await res.json();
-    const text = j.content?.[0]?.text || '브리핑 생성 실패';
-    document.getElementById('aiText').textContent = text;
-    document.getElementById('aiResult').classList.add('show');
-  } catch(e) {
-    alert('오류: '+e.message);
-  } finally {
-    btn.disabled=false; btn.textContent='✨ 오늘의 경제 브리핑 생성';
-  }
-}
-
-async function analyzeNews(btn, title){
-  if(!apiKey){ alert('AI 탭에서 API 키를 먼저 입력해주세요'); return; }
-  btn.textContent='...'; btn.disabled=true;
-
-  document.getElementById('modalTitle').textContent = title.length>30?title.slice(0,30)+'…':title;
-  document.getElementById('modalBody').innerHTML = '<div class="dots"><span></span><span></span><span></span></div>';
-  document.getElementById('modal').classList.add('open');
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key':apiKey,
-        'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-access':'true'
-      },
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:500,
-        messages:[{ role:'user', content:
-          `뉴스: "${title}"\n\n간결하게 분석해주세요:\n1️⃣ 핵심 내용 (2줄)\n2️⃣ 시장/경제 영향\n3️⃣ 투자자 관점`
-        }]
-      })
-    });
-    const j = await res.json();
-    document.getElementById('modalBody').textContent = j.content?.[0]?.text||'분석 실패';
-  } catch {
-    document.getElementById('modalBody').textContent = '분석 중 오류 발생';
-  } finally {
-    btn.textContent='AI 분석'; btn.disabled=false;
   }
 }
 

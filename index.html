@@ -117,14 +117,6 @@
     }
     .header.shrunk .app-logo span { font-size:11px; }
     .header-right { text-align:right; }
-    .header-schedule {
-      font-family:var(--font-mono);
-      font-size:9px; color:var(--text-dim);
-      margin-top:2px; letter-spacing:0.3px;
-      max-height:20px; opacity:1; overflow:hidden;
-      transition: max-height 0.3s ease, opacity 0.25s ease, margin-top 0.3s ease;
-    }
-    .header.shrunk .header-schedule { max-height:0; opacity:0; margin-top:0; }
     .header-date {
       font-family:var(--font-mono);
       font-size:11px; color:var(--text-muted);
@@ -480,25 +472,49 @@
     .settings-info-row:last-child { border-bottom:none; }
     .settings-info-row span:first-child { color:var(--text-muted); font-weight:var(--fw-medium); }
     .settings-info-row span:last-child { color:var(--text); font-weight:var(--fw-semi); }
-    .changelog-item {
-      display:flex; gap:10px; padding:10px 0;
-      border-bottom:1px solid #F3F4F6; align-items:flex-start;
+    .changelog-list {
+      max-height:500px; overflow-y:auto; -webkit-overflow-scrolling:touch;
     }
-    .changelog-item:last-child { border-bottom:none; }
+    .changelog-section {
+      padding:14px 0; border-bottom:1px solid #F3F4F6;
+    }
+    .changelog-section:last-child { border-bottom:none; }
     .changelog-ver {
-      flex-shrink:0; width:60px;
-      font-family:var(--font-mono); font-size:11px; font-weight:var(--fw-bold);
-      color:var(--accent);
+      font-family:var(--font-mono); font-size:13px; font-weight:var(--fw-bold);
+      color:var(--accent); margin-bottom:8px;
     }
-    .changelog-body {
+    .changelog-ul {
+      list-style:none; padding:0; margin:0;
+    }
+    .changelog-ul li {
       font-family:var(--font-sans); font-size:12px; color:var(--text-muted);
-      line-height:1.5;
+      line-height:1.6; padding:2px 0 2px 14px; position:relative;
+    }
+    .changelog-ul li::before {
+      content:'•'; position:absolute; left:0; color:var(--accent); font-weight:700;
     }
     .changelog-tag {
       display:inline-block; font-size:8px; font-weight:700;
-      padding:1px 5px; border-radius:3px; vertical-align:middle; margin-left:2px;
+      padding:1px 5px; border-radius:3px; vertical-align:middle; margin-left:4px;
     }
     .tag-latest { background:var(--accent); color:#fff; }
+    .settings-actions {
+      display:flex; gap:8px; margin-top:12px; justify-content:flex-end;
+    }
+    .settings-apply {
+      padding:8px 24px; border-radius:8px; border:none;
+      background:var(--accent); color:#fff;
+      font-family:var(--font-sans); font-size:12px; font-weight:var(--fw-bold);
+      cursor:pointer; transition:opacity 0.2s;
+    }
+    .settings-apply:active { opacity:0.7; }
+    .settings-cancel {
+      padding:8px 20px; border-radius:8px;
+      border:1.5px solid #E5E7EB; background:#fff; color:var(--text-muted);
+      font-family:var(--font-sans); font-size:12px; font-weight:var(--fw-semi);
+      cursor:pointer; transition:opacity 0.2s;
+    }
+    .settings-cancel:active { opacity:0.7; }
 
     .modal-backdrop {
       display:none; position:fixed; inset:0;
@@ -542,7 +558,6 @@
       <div class="header-right">
         <div class="live-dot">LIVE</div>
         <div class="header-date" id="headerDate"></div>
-        <div class="header-schedule">업데이트 07:30 · 11:30 · 14:00 · 16:30 · 20:00 · 22:30</div>
       </div>
     </div>
     <div class="header-sub">
@@ -689,33 +704,37 @@
 
     <!-- ▸ SETTINGS -->
     <div class="tab-panel" id="tab-settings">
-      <div style="text-align:center;padding:24px 20px 16px;">
-        <div style="font-family:var(--font-serif);font-size:18px;font-weight:900;color:var(--text);letter-spacing:-0.3px;">⚙️ 설정</div>
-        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">앱 환경을 커스터마이즈하세요</div>
-      </div>
 
       <!-- 글꼴 크기 -->
-      <div class="settings-card">
+      <div class="settings-card" style="margin-top:12px;">
         <div class="settings-label">📐 글꼴 크기</div>
-        <div class="settings-desc">본문 텍스트 크기를 조절합니다 · <span style="color:var(--accent);">기본값: 보통</span></div>
+        <div class="settings-desc">기본값: 보통</div>
         <div class="settings-row" id="font-size-btns">
-          <button class="settings-opt" data-size="xs" onclick="setFontSize('xs')">매우 작게</button>
-          <button class="settings-opt" data-size="small" onclick="setFontSize('small')">작게</button>
-          <button class="settings-opt active" data-size="medium" onclick="setFontSize('medium')">보통</button>
-          <button class="settings-opt" data-size="large" onclick="setFontSize('large')">크게</button>
-          <button class="settings-opt" data-size="xl" onclick="setFontSize('xl')">더 크게</button>
+          <button class="settings-opt" data-size="xs" onclick="previewFontSize('xs')">매우 작게</button>
+          <button class="settings-opt" data-size="small" onclick="previewFontSize('small')">작게</button>
+          <button class="settings-opt active" data-size="medium" onclick="previewFontSize('medium')">보통</button>
+          <button class="settings-opt" data-size="large" onclick="previewFontSize('large')">크게</button>
+          <button class="settings-opt" data-size="xl" onclick="previewFontSize('xl')">더 크게</button>
+        </div>
+        <div id="font-size-actions" class="settings-actions" style="display:none;">
+          <button class="settings-apply" onclick="applyFontSize()">적용</button>
+          <button class="settings-cancel" onclick="cancelFontSize()">취소</button>
         </div>
       </div>
 
       <!-- 시작 탭 -->
       <div class="settings-card">
         <div class="settings-label">🏠 시작 탭</div>
-        <div class="settings-desc">앱을 열 때 처음 보이는 탭을 설정합니다 · <span style="color:var(--accent);">기본값: 경제</span></div>
+        <div class="settings-desc">기본값: 경제</div>
         <div class="settings-row" id="start-tab-btns">
-          <button class="settings-opt" data-start="front" onclick="setStartTab('front')">1면</button>
-          <button class="settings-opt active" data-start="economy" onclick="setStartTab('economy')">경제</button>
-          <button class="settings-opt" data-start="industry" onclick="setStartTab('industry')">산업</button>
-          <button class="settings-opt" data-start="global" onclick="setStartTab('global')">국제</button>
+          <button class="settings-opt" data-start="front" onclick="previewStartTab('front')">1면</button>
+          <button class="settings-opt active" data-start="economy" onclick="previewStartTab('economy')">경제</button>
+          <button class="settings-opt" data-start="industry" onclick="previewStartTab('industry')">산업</button>
+          <button class="settings-opt" data-start="global" onclick="previewStartTab('global')">국제</button>
+        </div>
+        <div id="start-tab-actions" class="settings-actions" style="display:none;">
+          <button class="settings-apply" onclick="applyStartTab()">적용</button>
+          <button class="settings-cancel" onclick="cancelStartTab()">취소</button>
         </div>
       </div>
 
@@ -724,11 +743,11 @@
         <div class="settings-label">ℹ️ 앱 정보</div>
         <div class="settings-info">
           <div class="settings-info-row"><span>앱 이름</span><span>Econ.SOOP 경제숲</span></div>
-          <div class="settings-info-row"><span>버전</span><span id="settings-version">v85</span></div>
+          <div class="settings-info-row"><span>버전</span><span id="settings-version">v1.5</span></div>
           <div class="settings-info-row"><span>개발자</span><span>Shawn Kim (김도훈)</span></div>
           <div class="settings-info-row"><span>AI 엔진</span><span>Claude Sonnet</span></div>
           <div class="settings-info-row" style="flex-direction:column;align-items:flex-start;gap:4px;">
-            <span>업데이트 시간</span>
+            <span>브리핑 업데이트</span>
             <span style="font-size:12px;color:var(--accent);font-weight:600;">07:30 · 11:30 · 14:00 · 16:30 · 20:00 · 22:30 KST</span>
           </div>
         </div>
@@ -744,66 +763,74 @@
           <div class="settings-info-row"><span>AI 브리핑</span><span>Anthropic Claude Sonnet</span></div>
           <div class="settings-info-row"><span>코드 저장소</span><span style="font-family:var(--font-mono);font-size:11px;">github.com/storkization/econsoop</span></div>
           <div class="settings-info-row"><span>개발 방식</span><span>AI-assisted Vibe Coding</span></div>
-          <div class="settings-info-row" id="settings-changelog-row" style="flex-direction:column;align-items:flex-start;gap:0;">
-            <span style="margin-bottom:8px;">업데이트 내역</span>
-            <div style="width:100%;max-height:320px;overflow-y:auto;-webkit-overflow-scrolling:touch;">
-              <div class="changelog-item">
-                <div class="changelog-ver">v85 <span class="changelog-tag tag-latest">최신</span></div>
-                <div class="changelog-body">설정 탭 추가 (글꼴 크기 5단계, 시작 탭, 앱/개발 정보, 업데이트 내역)</div>
-              </div>
-              <div class="changelog-item">
-                <div class="changelog-ver">v82</div>
-                <div class="changelog-body">로딩 UX 6단계 진행바, 헤더 업데이트 시간 표시</div>
-              </div>
-              <div class="changelog-item">
-                <div class="changelog-ver">v78</div>
-                <div class="changelog-body">칼럼 스케줄 캐시, iOS 폰트 최적화, 퀴즈 50문항</div>
-              </div>
-              <div class="changelog-item">
-                <div class="changelog-ver">v75</div>
-                <div class="changelog-body">전면 UI/UX 개선 — pill 탭, 헤더 경량화, 퀴즈 모달</div>
-              </div>
-              <div class="changelog-item">
-                <div class="changelog-ver">v72</div>
-                <div class="changelog-body">로딩 프로그레스 바, 경제 퀴즈, 용어 카드 도입</div>
-              </div>
-              <div class="changelog-item">
-                <div class="changelog-ver">v69</div>
-                <div class="changelog-body">DEV MODE 개발 오버레이 (배너, 워터마크, 태그)</div>
-              </div>
-              <div class="changelog-item">
-                <div class="changelog-ver">v62</div>
-                <div class="changelog-body">AI 엔진 Claude Sonnet 4.6 업그레이드</div>
-              </div>
-              <div class="changelog-item">
-                <div class="changelog-ver">v56~60</div>
-                <div class="changelog-body">Footnote 정확도 개선 — 할루시네이션 방지 프롬프트 강화</div>
-              </div>
-              <div class="changelog-item">
-                <div class="changelog-ver">v49</div>
-                <div class="changelog-body">DEV MODE 플래그, 더미 데이터 시스템 구축</div>
-              </div>
-              <div class="changelog-item">
-                <div class="changelog-ver">v48</div>
-                <div class="changelog-body">타이포그래피 시스템 통일 (CSS 변수화)</div>
-              </div>
-              <div class="changelog-item">
-                <div class="changelog-ver">v37~46</div>
-                <div class="changelog-body">쓰리포인트 분석 (Why/So What/Focus), 칼럼 펼치기, 스케줄 6회</div>
-              </div>
-              <div class="changelog-item">
-                <div class="changelog-ver">v24~31</div>
-                <div class="changelog-body">Footnote 용어 설명, ONELINER 구조화, 키워드 고도화</div>
-              </div>
-              <div class="changelog-item">
-                <div class="changelog-ver">v20</div>
-                <div class="changelog-body">원포인트 요약, Service Worker 캐시 최적화</div>
-              </div>
-              <div class="changelog-item">
-                <div class="changelog-ver">v1.0</div>
-                <div class="changelog-body">Econ.SOOP 첫 출시 — 탭/서브칩 구조, AI 브리핑, 네이버 뉴스 연동</div>
-              </div>
-            </div>
+        </div>
+      </div>
+
+      <!-- 업데이트 내역 -->
+      <div class="settings-card">
+        <div class="settings-label">📋 업데이트 내역</div>
+        <div class="changelog-list">
+          <div class="changelog-section">
+            <div class="changelog-ver">v1.5 <span class="changelog-tag tag-latest">최신</span></div>
+            <ul class="changelog-ul">
+              <li>⚙️ 설정 탭 추가 — 글꼴 크기 5단계, 시작 탭, 앱/개발 정보</li>
+              <li>설정 적용/취소 패턴 구현 (미리보기 → 확인 저장)</li>
+              <li>로딩 UX 6단계 진행바 (뉴스룸 톤: 수집→분석→작성→검증→에디팅→발행)</li>
+              <li>AI 분석 중 타이머 자동 전진으로 체감 속도 개선</li>
+              <li>발행 완료 후 1.5초 딜레이 — 완성 상태 확인 후 전환</li>
+            </ul>
+          </div>
+          <div class="changelog-section">
+            <div class="changelog-ver">v1.4</div>
+            <ul class="changelog-ul">
+              <li>전면 UI/UX 개선 — pill 탭, 헤더 경량화, fade-in 전환</li>
+              <li>경제 퀴즈 50문항 추가 (로딩 중 표시, 완성 시 정답 모달)</li>
+              <li>DEV MODE 오버레이 (빨간 배너 + 워터마크 + 떠다니는 태그카드)</li>
+              <li>뉴스 병렬 fetch → 배치 fetch 전환 (3개씩 250ms, 429 방지)</li>
+              <li>브리핑 건너뛰기 버튼 추가</li>
+              <li>죽은 CSS 88줄 제거 + 인라인 스타일 → 클래스 통일</li>
+            </ul>
+          </div>
+          <div class="changelog-section">
+            <div class="changelog-ver">v1.3</div>
+            <ul class="changelog-ul">
+              <li>AI 엔진 Claude Sonnet 4.6 업그레이드 (Haiku → Sonnet)</li>
+              <li>Footnote 할루시네이션 방지 — 본문 미등장 단어 설명 금지 규칙 5차 강화</li>
+              <li>쓰리포인트 Footnote 인라인 배치 (섹션 혼용 원천 차단)</li>
+              <li>DEV MODE 더미 데이터 실제 출력 형식과 동기화</li>
+              <li>마크다운 금지 프롬프트 + 파싱 regex 전면 수정</li>
+            </ul>
+          </div>
+          <div class="changelog-section">
+            <div class="changelog-ver">v1.2</div>
+            <ul class="changelog-ul">
+              <li>쓰리포인트 분석 도입 — 배경(Why) / 시장 영향(So What) / 주목할 점(Focus)</li>
+              <li>오늘의 칼럼 펼치기 버튼 + 별도 API (column.js)</li>
+              <li>브리핑 스케줄 6회 (07:30 / 11:30 / 14:00 / 16:30 / 20:00 / 22:30 KST)</li>
+              <li>타이포그래피 시스템 CSS 변수화 (Playfair Display + Noto Sans KR + IBM Plex Mono)</li>
+              <li>헤더 스크롤 축소 애니메이션 (shrunk 클래스)</li>
+            </ul>
+          </div>
+          <div class="changelog-section">
+            <div class="changelog-ver">v1.1</div>
+            <ul class="changelog-ul">
+              <li>SUMMARY 줄별 Footnote (※ 용어 부연설명) 추가</li>
+              <li>ONELINER Why/So What/Focus 구조화</li>
+              <li>뉴스 키워드 고도화 + 제목·description 함께 전송</li>
+              <li>용어 밑줄 표시 (초록색 underline)</li>
+              <li>불릿(•) 렌더링 줄바꿈 + SUMMARY 일관성 프롬프트</li>
+            </ul>
+          </div>
+          <div class="changelog-section">
+            <div class="changelog-ver">v1.0</div>
+            <ul class="changelog-ul">
+              <li>최초 릴리즈 🎉</li>
+              <li>1면 / 경제 / 산업 / 국제 / 주식 / 환율 탭 + 서브칩 구조</li>
+              <li>AI 브리핑 — Anthropic API 연동 (SUMMARY + ONELINER)</li>
+              <li>네이버 뉴스 API 실시간 수집</li>
+              <li>Vercel 서버리스 배포 + PWA 지원</li>
+              <li>Service Worker 캐시 + 앱 아이콘 Econ.SOOP PNG</li>
+            </ul>
           </div>
         </div>
       </div>
@@ -890,13 +917,17 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v85';
+const CACHE_VERSION = 'v87';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
     const apiKey = localStorage.getItem('eco_api_key');
+    const fontSize = localStorage.getItem('eco_font_size');
+    const startTab = localStorage.getItem('eco_start_tab');
     localStorage.clear();
     if (apiKey) localStorage.setItem('eco_api_key', apiKey);
+    if (fontSize) localStorage.setItem('eco_font_size', fontSize);
+    if (startTab) localStorage.setItem('eco_start_tab', startTab);
     localStorage.setItem('eco_cache_version', CACHE_VERSION);
   }
 })();
@@ -2076,36 +2107,78 @@ async function loadFX(){
 
 /* ═══════════ SETTINGS ═══════════ */
 const FONT_SIZES = { xs: 82, small: 90, medium: 100, large: 110, xl: 120 };
+let _savedFontSize = 'medium';   // 저장된 값
+let _previewFontSize = null;     // 미리보기 중인 값
+let _savedStartTab = 'economy';
+let _previewStartTab = null;
 
-function setFontSize(size) {
-  const pct = FONT_SIZES[size] || 100;
-  document.documentElement.style.fontSize = pct + '%';
-  localStorage.setItem('eco_font_size', size);
-  // UI 반영
+function previewFontSize(size) {
+  _previewFontSize = size;
+  // 즉시 미리보기 적용
+  document.documentElement.style.fontSize = (FONT_SIZES[size] || 100) + '%';
   document.querySelectorAll('#font-size-btns .settings-opt').forEach(b => {
     b.classList.toggle('active', b.dataset.size === size);
   });
+  // 변경 있으면 적용/취소 표시
+  document.getElementById('font-size-actions').style.display =
+    (size !== _savedFontSize) ? 'flex' : 'none';
 }
 
-function setStartTab(tab) {
-  localStorage.setItem('eco_start_tab', tab);
+function applyFontSize() {
+  if (!_previewFontSize) return;
+  _savedFontSize = _previewFontSize;
+  localStorage.setItem('eco_font_size', _savedFontSize);
+  document.getElementById('font-size-actions').style.display = 'none';
+  _previewFontSize = null;
+}
+
+function cancelFontSize() {
+  _previewFontSize = null;
+  // 저장된 값으로 복원
+  document.documentElement.style.fontSize = (FONT_SIZES[_savedFontSize] || 100) + '%';
+  document.querySelectorAll('#font-size-btns .settings-opt').forEach(b => {
+    b.classList.toggle('active', b.dataset.size === _savedFontSize);
+  });
+  document.getElementById('font-size-actions').style.display = 'none';
+}
+
+function previewStartTab(tab) {
+  _previewStartTab = tab;
   document.querySelectorAll('#start-tab-btns .settings-opt').forEach(b => {
     b.classList.toggle('active', b.dataset.start === tab);
   });
+  document.getElementById('start-tab-actions').style.display =
+    (tab !== _savedStartTab) ? 'flex' : 'none';
+}
+
+function applyStartTab() {
+  if (!_previewStartTab) return;
+  _savedStartTab = _previewStartTab;
+  localStorage.setItem('eco_start_tab', _savedStartTab);
+  document.getElementById('start-tab-actions').style.display = 'none';
+  _previewStartTab = null;
+}
+
+function cancelStartTab() {
+  _previewStartTab = null;
+  document.querySelectorAll('#start-tab-btns .settings-opt').forEach(b => {
+    b.classList.toggle('active', b.dataset.start === _savedStartTab);
+  });
+  document.getElementById('start-tab-actions').style.display = 'none';
 }
 
 function initSettings() {
   // 글꼴 크기 복원
-  const savedFont = localStorage.getItem('eco_font_size') || 'medium';
-  setFontSize(savedFont);
-  // 시작 탭 UI 복원
-  const savedStart = localStorage.getItem('eco_start_tab') || 'economy';
-  document.querySelectorAll('#start-tab-btns .settings-opt').forEach(b => {
-    b.classList.toggle('active', b.dataset.start === savedStart);
+  _savedFontSize = localStorage.getItem('eco_font_size') || 'medium';
+  document.documentElement.style.fontSize = (FONT_SIZES[_savedFontSize] || 100) + '%';
+  document.querySelectorAll('#font-size-btns .settings-opt').forEach(b => {
+    b.classList.toggle('active', b.dataset.size === _savedFontSize);
   });
-  // 버전 표시
-  const verEl = document.getElementById('settings-version');
-  if (verEl) verEl.textContent = CACHE_VERSION;
+  // 시작 탭 복원
+  _savedStartTab = localStorage.getItem('eco_start_tab') || 'economy';
+  document.querySelectorAll('#start-tab-btns .settings-opt').forEach(b => {
+    b.classList.toggle('active', b.dataset.start === _savedStartTab);
+  });
 }
 
 function closeModal(e){

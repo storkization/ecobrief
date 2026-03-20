@@ -568,6 +568,7 @@
 
   <!-- TABS -->
   <div class="tabs">
+    <button class="tab-btn" data-tab="breaking">🚨 속보</button>
     <button class="tab-btn" data-tab="front">🗞 1면</button>
     <button class="tab-btn active" data-tab="economy">🏦 경제</button>
     <button class="tab-btn" data-tab="industry">🏭 산업</button>
@@ -588,6 +589,20 @@
 
   <!-- CONTENT -->
   <div class="content">
+
+    <!-- ▸ 속보 -->
+    <div class="tab-panel" id="tab-breaking">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 4px 10px;">
+        <div>
+          <div style="font-family:var(--font-serif);font-size:18px;font-weight:900;color:var(--red);letter-spacing:-0.3px;">🚨 속보</div>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">경제 · 금융 · 시장 긴급 뉴스</div>
+        </div>
+        <button onclick="loadBreaking(true)" style="background:none;border:1.5px solid #E5E7EB;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;color:var(--text-muted);font-family:var(--font-sans);cursor:pointer;">🔄 새로고침</button>
+      </div>
+      <div id="breaking-news-list">
+        <div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div><p style="margin-top:14px">속보를 불러오는 중...</p></div>
+      </div>
+    </div>
 
     <!-- ▸ 1면 -->
     <div class="tab-panel" id="tab-front">
@@ -917,7 +932,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v87';
+const CACHE_VERSION = 'v88';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1074,6 +1089,7 @@ function switchTab(id) {
   }
   if (id==='stocks') loadStocks();
   if (id==='fx' && !fxRates) loadFX();
+  if (id==='breaking') loadBreaking();
 }
 
 /* ═══════════ CHIPS ═══════════ */
@@ -1984,6 +2000,78 @@ function renderNewsList(items, el) {
       </div>
     </div>`;
   });
+  el.innerHTML = h;
+}
+
+
+/* ═══════════ BREAKING NEWS ═══════════ */
+let breakingCache = null;
+let breakingLoaded = false;
+
+async function loadBreaking(force = false) {
+  if (breakingLoaded && !force) return;
+
+  const el = document.getElementById('breaking-news-list');
+  el.innerHTML = `<div class="loading-wrap"><div class="dots"><span></span><span></span><span></span></div><p style="margin-top:14px">속보를 불러오는 중...</p></div>`;
+
+  const queries = ['속보 경제', '속보 금융 증시', '속보 환율 금리'];
+  const allItems = [];
+
+  const results = await fetchInBatches(queries, async q => {
+    try {
+      const r = await fetch(`/api/news?query=${encodeURIComponent(q)}&display=15&type=general`,
+        { signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 5000); return c.signal; })() });
+      const j = await r.json();
+      return j.items || [];
+    } catch(e) {
+      console.warn("[BREAKING FETCH]", q, e.message);
+      return [];
+    }
+  }, 3, 250);
+  allItems.push(...results.flat());
+
+  // 중복 제거 + 최신순
+  const seen = new Set();
+  const unique = allItems
+    .filter(it => { const k=it.title.slice(0,15); if(seen.has(k)) return false; seen.add(k); return true; })
+    .sort((a,b) => new Date(b.date)-new Date(a.date))
+    .slice(0, 30);
+
+  breakingCache = unique;
+  breakingLoaded = true;
+
+  if (!unique.length) {
+    el.innerHTML = `<div class="loading-wrap"><p>속보를 찾을 수 없습니다.</p></div>`;
+    return;
+  }
+
+  const now = new Date();
+  const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+  let h = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:11px;font-weight:800;letter-spacing:0.8px;color:var(--red);font-family:var(--font-mono);">BREAKING</span>
+        <span style="font-size:11px;color:#6B7280;font-family:var(--font-sans);">경제 속보</span>
+      </div>
+      <span style="font-size:10px;color:#9CA3AF;font-family:var(--font-mono);">${timeStr} 기준 · ${unique.length}건</span>
+    </div>
+    <div style="border-radius:var(--radius);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.07);border:1px solid rgba(220,38,38,0.15);">`;
+
+  unique.forEach((it, i) => {
+    const isLast = i === unique.length - 1;
+    h += `<div class="news-item" style="${!isLast ? 'border-bottom:1px solid rgba(0,0,0,0.05);' : ''}">
+      <div class="news-num" style="color:var(--red);font-weight:800;">${pad(i+1)}</div>
+      <div class="news-body" onclick="openLink('${esc(it.link)}')">
+        <div class="news-title">${it.title}</div>
+        <div class="news-meta">
+          <span style="background:#FEE2E2;color:#DC2626;padding:1px 6px;border-radius:4px;font-weight:600;">${it.source}</span>
+          <span>${ago(it.date)}</span>
+        </div>
+      </div>
+    </div>`;
+  });
+  h += `</div>`;
   el.innerHTML = h;
 }
 

@@ -93,62 +93,54 @@
 
     /* ── HEADER ── */
     .header {
-      padding: calc(env(safe-area-inset-top, 44px) + 12px) 20px 14px;
+      padding: calc(env(safe-area-inset-top, 44px) + 10px) 20px 12px;
       background: #FFFFFF;
       border-bottom:1px solid rgba(26,122,69,0.12);
       flex-shrink:0;
+      transition: padding 0.3s ease;
     }
+    .header.shrunk { padding-bottom: 8px; }
     .header-top { display:flex; justify-content:space-between; align-items:flex-end; }
     .app-logo {
       font-family:var(--font-serif);
-      font-size:32px; font-weight:var(--fw-black);
+      font-size:30px; font-weight:var(--fw-black);
       letter-spacing:-0.5px; color:var(--text);
       transition: font-size 0.3s ease;
     }
-    .header.shrunk .app-logo {
-      font-size:24px;
-    }
+    .header.shrunk .app-logo { font-size:22px; }
     .app-logo em { color:var(--accent); font-style:normal; }
     .app-logo span {
-      color:var(--text-muted); font-size:14px;
+      color:var(--text-muted); font-size:13px;
       font-family:var(--font-sans); font-weight:var(--fw-semi);
-      letter-spacing:-0.2px; margin-left:6px; vertical-align:middle;
+      letter-spacing:-0.2px; margin-left:5px; vertical-align:middle;
       transition: font-size 0.3s ease;
     }
-    .header.shrunk .app-logo span {
-      font-size:12px;
-    }
-    .header-channel {
-      font-family:var(--font-sans);
-      font-size:15px; font-weight:700;
-      color:var(--accent); letter-spacing:-0.2px;
-      transition: font-size 0.3s ease, opacity 0.3s ease;
-    }
-    .header.shrunk .header-channel {
-      font-size:13px;
-    }
+    .header.shrunk .app-logo span { font-size:11px; }
     .header-right { text-align:right; }
     .header-date {
       font-family:var(--font-mono);
-      font-size:12px; color:var(--text-muted);
+      font-size:11px; color:var(--text-muted);
       line-height:1.6;
     }
-    .header {
-      transition: padding 0.3s ease;
-    }
-    .header.shrunk {
-      padding-bottom: 10px;
-    }
     .header-sub {
-      display:flex; align-items:center; gap:5px;
-      margin-top:5px;
-      max-height:120px; opacity:1;
+      display:flex; flex-direction:column; gap:2px;
+      margin-top:6px;
+      max-height:60px; opacity:1;
       overflow:hidden;
       transition: max-height 0.3s ease, opacity 0.25s ease, margin-top 0.3s ease;
     }
-    .header.shrunk .header-sub {
-      max-height:0; opacity:0; margin-top:0;
+    .header.shrunk .header-sub { max-height:0; opacity:0; margin-top:0; }
+    .header-channel {
+      font-family:var(--font-sans);
+      font-size:14px; font-weight:700;
+      color:var(--accent); letter-spacing:-0.2px;
     }
+    .header-credit {
+      font-family:var(--font-mono);
+      font-size:10px; color:var(--text-dim);
+    }
+    .header-credit em { font-style:normal; font-weight:700; color:var(--text-muted); }
+    .header-credit em.accent { color:var(--accent); }
     .live-dot {
       display:inline-flex; align-items:center; gap:4px;
       font-family:var(--font-mono);
@@ -164,67 +156,76 @@
     /* ── TABS ── */
     .tabs {
       display:flex; background:#FFFFFF;
-      border-bottom:2px solid #E5EFE8;
+      border-bottom:1px solid #E5EFE8;
       flex-shrink:0; overflow-x:auto;
+      padding:4px 8px;
+      gap:2px;
       -webkit-overflow-scrolling:touch; scrollbar-width:none;
     }
     .tabs::-webkit-scrollbar { display:none; }
     .tab-btn {
-      flex-shrink:0; padding:10px 14px;
-      background:none; border:none;
+      flex-shrink:0; padding:7px 13px;
+      background:none; border:none; border-radius:8px;
       color:var(--text-dim);
       font-family:var(--font-sans);
-      font-size:var(--fs-body-sm); cursor:pointer;
-      position:relative; transition:color 0.2s; white-space:nowrap;
+      font-size:12px; font-weight:var(--fw-medium);
+      cursor:pointer; transition:all 0.2s; white-space:nowrap;
     }
-    .tab-btn.active { color:var(--accent); font-weight:var(--fw-bold); }
-    .tab-btn.active::after {
-      content:''; position:absolute;
-      bottom:-2px; left:15%; right:15%; height:2px;
-      background:var(--accent); border-radius:2px 2px 0 0;
+    .tab-btn:active { transform:scale(0.96); }
+    .tab-btn.active {
+      color:#fff; font-weight:var(--fw-bold);
+      background:var(--accent);
+      box-shadow:0 2px 8px rgba(26,122,69,0.25);
     }
 
     /* ── CHIPS ── */
     .chips-wrap {
       background:#F7FBF8; border-bottom:1px solid #E0EDE5;
-      padding:8px 12px; display:flex; gap:6px;
+      padding:8px 12px; display:flex; gap:7px;
       overflow-x:auto; -webkit-overflow-scrolling:touch;
       scrollbar-width:none; flex-shrink:0;
     }
     .chips-wrap::-webkit-scrollbar { display:none; }
     .chip {
-      flex-shrink:0; padding:5px 13px; border-radius:20px;
+      flex-shrink:0; padding:6px 14px; border-radius:20px;
       border:1px solid #D1E8D8; background:#FFFFFF; color:#4B7A5A;
       font-family:var(--font-sans);
-      font-size:var(--fs-caption); font-weight:var(--fw-medium);
+      font-size:11px; font-weight:var(--fw-semi);
       cursor:pointer; white-space:nowrap; transition:all .2s;
     }
+    .chip:active { transform:scale(0.95); }
     .chip.active { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:var(--fw-bold); }
-    .chip.summary-chip { background:linear-gradient(135deg,#1A7A45,#2DA55E); border-color:#2DA55E; color:#fff; font-weight:var(--fw-bold); }
+    .chip.summary-chip {
+      background:linear-gradient(135deg,#1A7A45,#2DA55E);
+      border-color:#2DA55E; color:#fff; font-weight:var(--fw-bold);
+      box-shadow:0 2px 6px rgba(26,122,69,0.2);
+    }
 
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
     /* ── SUMMARY CARD ── */
     .summary-card {
-      background:#FFFFFF; border-radius:12px; padding:0;
-      margin-bottom:16px;
-      box-shadow:0 2px 12px rgba(0,0,0,0.08);
-      border:1.5px solid var(--accent); overflow:hidden;
+      background:#FFFFFF; border-radius:14px; padding:0;
+      margin-bottom:14px;
+      box-shadow:0 2px 16px rgba(0,0,0,0.06), 0 0 0 1px rgba(26,122,69,0.15);
+      overflow:hidden;
     }
     .summary-report-header {
-      text-align:left; padding:20px 24px 16px;
-      border-bottom:1.5px solid var(--accent); background:#FFFFFF;
+      text-align:left; padding:18px 22px 14px;
+      border-bottom:1px solid rgba(26,122,69,0.15);
+      background:linear-gradient(180deg,#FAFFFD 0%,#FFFFFF 100%);
     }
     .summary-report-eyebrow {
-      font-family:var(--font-serif);
-      font-size:var(--fs-h2); font-weight:var(--fw-bold);
-      color:var(--accent); letter-spacing:0.3px; margin-bottom:4px;
+      font-family:var(--font-mono);
+      font-size:9px; font-weight:var(--fw-bold);
+      color:var(--accent); letter-spacing:1.5px;
+      text-transform:uppercase; margin-bottom:6px;
     }
     .summary-report-title {
       font-family:var(--font-serif);
       font-size:var(--fs-section); font-weight:var(--fw-black);
       color:var(--text); letter-spacing:-0.5px;
-      line-height:var(--lh-tight); margin-bottom:6px;
+      line-height:var(--lh-tight); margin-bottom:4px;
     }
     .summary-report-title em { color:var(--accent); font-style:normal; }
     .summary-report-date {
@@ -252,11 +253,12 @@
       font-family:var(--font-sans);
       font-size:var(--fs-h1); font-weight:800;
       color:var(--accent); letter-spacing:-0.3px;
-      margin:18px 16px 8px;
+      margin:16px 4px 10px;
     }
     .insight-card {
-      background:linear-gradient(135deg,#0D3320 0%,#1A5C35 100%);
-      border-radius:var(--radius); margin:0 16px 14px; padding:18px 20px;
+      background:linear-gradient(145deg,#0D3320 0%,#1A5C35 50%,#164A2E 100%);
+      border-radius:var(--radius); margin:0 0 14px; padding:20px;
+      box-shadow:0 4px 20px rgba(13,51,32,0.3);
     }
     .insight-line {
       display:flex; gap:10px; align-items:flex-start; margin-bottom:12px;
@@ -272,35 +274,35 @@
     .insight-text {
       font-family:var(--font-sans);
       font-size:var(--fs-body); font-weight:var(--fw-semi);
-      color:#fff; line-height:var(--lh-base);
+      color:#fff; line-height:1.75;
     }
-    .summary-line-wrap { padding:14px 24px; border-bottom:1px solid #E8F0EB; }
+    .summary-line-wrap { padding:16px 24px; border-bottom:1px solid #E8F0EB; }
     .summary-line-wrap:last-child { border-bottom:none; }
     .summary-line-tag {
       display:inline-block;
       font-family:var(--font-mono);
-      font-size:var(--fs-micro); font-weight:var(--fw-bold);
+      font-size:8px; font-weight:var(--fw-bold);
       padding:3px 8px; border-radius:4px;
-      margin-bottom:7px; letter-spacing:1px; text-transform:uppercase;
+      margin-bottom:8px; letter-spacing:1.2px; text-transform:uppercase;
     }
-    .tag-issue  { background:#E8F5EE; color:#1A7A45; border:1px solid #1A7A45; }
-    .tag-market { background:#EEF2FF; color:#3730A3; border:1px solid #3730A3; }
-    .tag-invest { background:#FEF9E7; color:#92600A; border:1px solid #D4A017; }
+    .tag-issue  { background:#E8F5EE; color:#1A7A45; border:1px solid rgba(26,122,69,0.3); }
+    .tag-market { background:#EEF2FF; color:#3730A3; border:1px solid rgba(55,48,163,0.2); }
+    .tag-invest { background:#FEF9E7; color:#92600A; border:1px solid rgba(212,160,23,0.3); }
     .summary-line-wrap.wrap-issue  { border-left:3px solid #1A7A45; background:#FAFFFD; }
     .summary-line-wrap.wrap-market { border-left:3px solid #3730A3; background:#F9FAFF; }
     .summary-line-wrap.wrap-invest { border-left:3px solid #D4A017; background:#FFFDF5; }
     .summary-line-text {
       font-family:var(--font-sans);
-      font-size:var(--fs-body); font-weight:var(--fw-semi);
-      color:var(--text); line-height:var(--lh-loose);
+      font-size:var(--fs-body); font-weight:var(--fw-medium);
+      color:var(--text); line-height:1.8;
       letter-spacing:-0.1px;
     }
     .summary-footnote {
-      margin-top:8px; padding:8px 12px;
-      background:#F8FAF8; border-left:2px solid #9CA3AF;
-      border-radius:0 6px 6px 0;
+      margin-top:10px; padding:10px 14px;
+      background:#F5F7F5; border-left:2px solid var(--accent);
+      border-radius:0 8px 8px 0;
       font-family:var(--font-sans);
-      font-size:var(--fs-body-sm); color:#4B5563; line-height:var(--lh-base);
+      font-size:12px; color:#4B5563; line-height:1.7;
     }
     .front-section {
       background:#FFFFFF; border-radius:14px; padding:20px; margin-bottom:12px;
@@ -357,7 +359,6 @@
       background:#FAFFFD; border:1px solid #D4E8DA;
       border-top:none; border-radius:0 0 12px 12px; padding:20px 20px 24px;
     }
-    .news-item:active { background:#F7FBF8; }
 
     /* ── CONTENT ── */
     .content {
@@ -392,6 +393,7 @@
     @keyframes bounce{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-5px);opacity:1}}
     @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
     @keyframes slideDown{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
     /* ════════════ NEWS ════════════ */
     .filter-btn {
@@ -409,13 +411,14 @@
 
     .section-label { padding:10px 0 6px; font-family:var(--font-mono); font-size:var(--fs-micro); color:#4B7A5A; text-transform:uppercase; letter-spacing:2px; }
 
-    .news-item { display:flex; gap:10px; padding:16px; border-bottom:1px solid #F0F0F0; align-items:flex-start; background:#FFFFFF; }
+    .news-item { display:flex; gap:10px; padding:14px 16px; border-bottom:1px solid #F0F0F0; align-items:flex-start; background:#FFFFFF; transition:background 0.15s; }
+    .news-item:active { background:#F0F7F2; }
     .news-item:first-of-type { border-radius:var(--radius) var(--radius) 0 0; }
     .news-item:last-of-type  { border-radius:0 0 var(--radius) var(--radius); border-bottom:none; }
     .news-num   { font-family:var(--font-mono); font-size:var(--fs-caption); color:var(--accent); font-weight:var(--fw-bold); min-width:22px; padding-top:2px; }
     .news-body  { flex:1; cursor:pointer; }
-    .news-title { font-family:var(--font-sans); font-size:var(--fs-body); font-weight:var(--fw-semi); line-height:var(--lh-base); color:var(--text); margin-bottom:6px; letter-spacing:-0.1px; }
-    .news-meta  { font-family:var(--font-mono); font-size:var(--fs-micro); color:var(--text-muted); display:flex; gap:8px; }
+    .news-title { font-family:var(--font-sans); font-size:13.5px; font-weight:var(--fw-semi); line-height:1.55; color:var(--text); margin-bottom:6px; letter-spacing:-0.1px; }
+    .news-meta  { font-family:var(--font-mono); font-size:10px; color:var(--text-muted); display:flex; gap:8px; align-items:center; }
 
     .ai-pill {
       padding:4px 10px; background:rgba(26,122,69,0.1);
@@ -556,11 +559,9 @@
         <div class="header-date" id="headerDate"></div>
       </div>
     </div>
-    <div class="header-sub" style="flex-direction:column;align-items:flex-start;gap:3px;margin-top:8px;">
+    <div class="header-sub">
       <span class="header-channel">숲을 보는 숀킴의 경제 채널</span>
-      <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">Created by <em style="font-style:normal;font-weight:700;color:var(--text);">김도훈</em></span>
-      <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">Written by <em style="font-style:normal;font-weight:700;color:var(--text);">Shawn's AI</em></span>
-      <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);">Made Possible with <em style="font-style:normal;font-weight:700;color:var(--accent);">claude-sonnet-4</em></span>
+      <span class="header-credit">by <em>김도훈</em> · Powered by <em class="accent">Claude Sonnet</em></span>
     </div>
   </div>
 
@@ -775,7 +776,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v74';
+const CACHE_VERSION = 'v75';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -985,22 +986,6 @@ const QUIZ_LIST = [
   { q:'주가와 금리의 일반적 관계는?', a:'반비례 (금리↑ → 주가↓)', hint:'금리가 오르면 돈이 예금·채권으로 이동해요 📉' },
 ];
 
-// 오늘의 경제 용어
-const TERM_CARDS = [
-  { term:'기준금리', en:'Base Rate', desc:'중앙은행이 시중은행에 돈을 빌려줄 때 적용하는 이자율. 모든 금리의 기준이 돼요.' },
-  { term:'양적완화', en:'QE', desc:'중앙은행이 채권을 사들여 시중에 돈을 푸는 정책. 경기 부양 시 사용해요.' },
-  { term:'스태그플레이션', en:'Stagflation', desc:'경기 침체 + 물가 상승이 동시에 오는 최악의 경제 상황이에요.' },
-  { term:'매파', en:'Hawkish', desc:'물가 안정을 위해 금리 인상을 선호하는 강경한 통화정책 입장.' },
-  { term:'비둘기파', en:'Dovish', desc:'경기 부양을 위해 금리 인하를 선호하는 온건한 통화정책 입장.' },
-  { term:'경상수지', en:'Current Account', desc:'무역·서비스·투자 등 대외 거래를 통한 돈의 흐름. 흑자면 외화가 들어온 것.' },
-  { term:'CPI', en:'소비자물가지수', desc:'소비자가 구매하는 상품·서비스 가격 변동을 나타내는 물가 지표.' },
-  { term:'선물시장', en:'Futures Market', desc:'미래 특정 시점에 정해진 가격으로 사고파는 계약을 거래하는 시장.' },
-  { term:'공매도', en:'Short Selling', desc:'주식을 빌려서 팔고, 나중에 싸게 사서 갚아 차익을 노리는 투자 전략.' },
-  { term:'유동성', en:'Liquidity', desc:'자산을 얼마나 빠르고 쉽게 현금화할 수 있는지를 나타내는 개념.' },
-  { term:'리세션', en:'Recession', desc:'GDP가 2분기 연속 감소하는 경기 침체 상태를 말해요.' },
-  { term:'환율', en:'Exchange Rate', desc:'두 나라 통화의 교환 비율. 원달러 1,400원은 달러 하나에 원화 1,400원.' },
-];
-
 let _loadingInterval = null;
 let _briefingController = null;
 let _currentQuiz = null; // 현재 로딩 중 표시 중인 퀴즈
@@ -1014,14 +999,10 @@ function setLoadingMsg(tab, phase, count = null) {
   if (!card) return;
   if (_loadingInterval) { clearInterval(_loadingInterval); _loadingInterval = null; }
 
-  // 퀴즈는 phase 시작 시 고정 (바뀌지 않게)
-  if (phase === 'ai' && !_currentQuiz) {
+  // 퀴즈는 뉴스 수집 시작 시 고정
+  if (!_currentQuiz) {
     _currentQuiz = QUIZ_LIST[Math.floor(Math.random() * QUIZ_LIST.length)];
   }
-
-  // 오늘 날짜 기반 용어 카드 (매일 다른 단어)
-  const dayIdx = new Date().getDate() % TERM_CARDS.length;
-  const todayTerm = TERM_CARDS[dayIdx];
 
   const msgs = shuffled(LOADING_MSGS);
   let msgIdx = 0;
@@ -1029,62 +1010,55 @@ function setLoadingMsg(tab, phase, count = null) {
   function render() {
     const isNews = phase === 'news';
     const countText = count !== null ? `${count}건 수집됨` : '수집 중...';
+    const steps = [
+      { label:'뉴스 수집', done: !isNews, active: isNews },
+      { label:'AI 분석',  done: false,    active: !isNews },
+      { label:'완성',     done: false,    active: false },
+    ];
 
     const stepBar = `
-      <div style="display:flex;align-items:center;gap:0;margin:20px 0 24px;padding:0 4px;">
-        ${['뉴스 수집', 'AI 분석', '완성'].map((label, i) => {
-          const done  = (isNews && i < 1) || (!isNews && i < 2);
-          const active= (isNews && i === 0) || (!isNews && i === 1);
-          const color = done ? '#1A7A45' : active ? '#1A7A45' : '#D1D5DB';
-          const textColor = (done || active) ? '#1A7A45' : '#9CA3AF';
-          const dotBg = done ? '#1A7A45' : active ? '#fff' : '#E5E7EB';
-          const dotBorder = (done || active) ? '#1A7A45' : '#D1D5DB';
-          const icon = done ? '✓' : active ? (i===0 ? '📡' : '🤖') : '';
+      <div style="display:flex;align-items:flex-start;margin:20px 0 24px;position:relative;">
+        ${steps.map((s, i) => {
+          const color = (s.done || s.active) ? '#1A7A45' : '#D1D5DB';
+          const dotBg = s.done ? '#1A7A45' : s.active ? '#fff' : '#E5E7EB';
+          const dotBorder = (s.done || s.active) ? '#1A7A45' : '#D1D5DB';
+          const textColor = (s.done || s.active) ? '#1A7A45' : '#9CA3AF';
+          const lineColorLeft = (s.done || s.active) ? '#1A7A45' : '#E5E7EB';
+          const lineColorRight = s.done ? '#1A7A45' : '#E5E7EB';
           return `
             <div style="flex:1;display:flex;flex-direction:column;align-items:center;position:relative;">
-              ${i > 0 ? `<div style="position:absolute;top:12px;left:0;right:50%;height:2px;background:${done||active?'#1A7A45':'#E5E7EB'};transform:translateY(-50%);"></div>` : ''}
-              ${i < 2 ? `<div style="position:absolute;top:12px;left:50%;right:0;height:2px;background:${done?'#1A7A45':'#E5E7EB'};transform:translateY(-50%);"></div>` : ''}
+              ${i > 0 ? `<div style="position:absolute;top:12px;right:50%;left:0;height:2px;background:${lineColorLeft};z-index:0;"></div>` : ''}
+              ${i < 2 ? `<div style="position:absolute;top:12px;left:50%;right:0;height:2px;background:${lineColorRight};z-index:0;"></div>` : ''}
               <div style="width:24px;height:24px;border-radius:50%;background:${dotBg};border:2px solid ${dotBorder};display:flex;align-items:center;justify-content:center;font-size:10px;z-index:1;position:relative;">
-                ${done ? `<span style="color:#fff;font-weight:700;">✓</span>` : active ? `<div style="width:8px;height:8px;border-radius:50%;background:#1A7A45;animation:pulse 1s infinite;"></div>` : ''}
+                ${s.done ? `<span style="color:#fff;font-weight:700;font-size:11px;">✓</span>` : s.active ? `<div style="width:8px;height:8px;border-radius:50%;background:#1A7A45;animation:pulse 1s infinite;"></div>` : ''}
               </div>
-              <div style="margin-top:6px;font-size:10px;font-weight:${active?'700':'500'};color:${textColor};font-family:'Noto Sans KR',sans-serif;white-space:nowrap;">${label}</div>
-              ${active && isNews ? `<div style="font-size:9px;color:#6B7280;margin-top:2px;">${countText}</div>` : ''}
+              <div style="margin-top:6px;font-size:10px;font-weight:${s.active?'700':'500'};color:${textColor};font-family:var(--font-sans);white-space:nowrap;">${s.label}</div>
+              ${s.active && isNews ? `<div style="font-size:9px;color:#6B7280;margin-top:2px;">${countText}</div>` : ''}
             </div>`;
         }).join('')}
       </div>`;
 
-    const quizCard = !isNews && _currentQuiz ? `
+    const quizCard = _currentQuiz ? `
       <div style="background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:12px;padding:14px 16px;margin:0 0 16px;text-align:left;">
         <div style="font-size:10px;font-weight:700;color:#16A34A;letter-spacing:0.5px;margin-bottom:6px;">🧠 오늘의 퀴즈 — 브리핑 완성 시 정답 공개!</div>
         <div style="font-size:13px;font-weight:700;color:#111827;line-height:1.5;">${_currentQuiz.q}</div>
       </div>` : '';
 
-    const termCard = isNews ? `
-      <div style="background:#F8FAFF;border:1.5px solid #BFDBFE;border-radius:12px;padding:14px 16px;margin:0 0 16px;text-align:left;">
-        <div style="font-size:10px;font-weight:700;color:#3B82F6;letter-spacing:0.5px;margin-bottom:6px;">📖 오늘의 경제 용어</div>
-        <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px;">
-          <span style="font-size:14px;font-weight:800;color:#111827;">${todayTerm.term}</span>
-          <span style="font-size:10px;color:#6B7280;font-family:'IBM Plex Mono',monospace;">${todayTerm.en}</span>
-        </div>
-        <div style="font-size:12px;color:#374151;line-height:1.6;">${todayTerm.desc}</div>
-      </div>` : '';
-
     card.innerHTML = `
       <div style="padding:24px 20px;">
-        <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:900;color:#111827;letter-spacing:-0.3px;margin-bottom:4px;text-align:center;">Shawn Kim's Daily Briefing</div>
-        <div style="font-size:11px;color:#9CA3AF;text-align:center;margin-bottom:4px;">${isNews ? '뉴스를 수집하고 있어요' : 'AI가 분석하고 있어요'}</div>
+        <div style="font-family:var(--font-serif);font-size:15px;font-weight:900;color:var(--text);letter-spacing:-0.3px;margin-bottom:4px;text-align:center;">Shawn Kim's Daily Briefing</div>
+        <div style="font-size:11px;color:var(--text-dim);text-align:center;margin-bottom:4px;">${isNews ? '뉴스를 수집하고 있어요' : 'AI가 분석하고 있어요'}</div>
         ${stepBar}
-        ${termCard}
         ${quizCard}
         <div style="text-align:center;">
           <div class="dots" style="margin-bottom:10px;"><span></span><span></span><span></span></div>
-          <div style="color:#6B7280;font-size:12px;font-weight:500;">${msgs[msgIdx % msgs.length]}</div>
+          <div style="color:var(--text-muted);font-size:12px;font-weight:500;">${msgs[msgIdx % msgs.length]}</div>
         </div>
         <div style="text-align:center;margin-top:20px;">
           <button onclick="cancelBriefing('${tab}')"
             style="background:transparent;border:1.5px solid #E5E7EB;border-radius:8px;
-                   padding:7px 18px;font-size:11px;font-weight:600;color:#9CA3AF;
-                   font-family:'Noto Sans KR',sans-serif;cursor:pointer;">
+                   padding:7px 18px;font-size:11px;font-weight:600;color:var(--text-dim);
+                   font-family:var(--font-sans);cursor:pointer;">
             ✕ 브리핑 건너뛰기
           </button>
         </div>
@@ -1101,27 +1075,39 @@ function showQuizAnswer() {
   const quiz = _currentQuiz;
   _currentQuiz = null;
 
-  const toast = document.createElement('div');
-  toast.style.cssText = `
-    position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:9995;
-    background:#111827;color:#fff;border-radius:14px;
-    padding:14px 20px;max-width:320px;width:90%;
-    box-shadow:0 8px 24px rgba(0,0,0,0.25);
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:9994;
+    background:rgba(0,0,0,0.4);
+    display:flex;align-items:center;justify-content:center;
+    max-width:480px;margin:0 auto;
+    animation:fadeIn 0.2s ease;
+  `;
+
+  const card = document.createElement('div');
+  card.style.cssText = `
+    background:#fff;border-radius:16px;
+    padding:24px;max-width:300px;width:85%;
+    box-shadow:0 12px 40px rgba(0,0,0,0.2);
     animation:slideDown 0.3s ease;
-    font-family:'Noto Sans KR',sans-serif;
+    font-family:var(--font-sans);text-align:center;
   `;
-  toast.innerHTML = `
-    <div style="font-size:10px;font-weight:700;color:#86EFAC;letter-spacing:0.5px;margin-bottom:6px;">🧠 퀴즈 정답!</div>
-    <div style="font-size:12px;color:#D1D5DB;margin-bottom:4px;">${quiz.q}</div>
-    <div style="font-size:14px;font-weight:800;color:#4ADE80;">→ ${quiz.a}</div>
-    <div style="font-size:11px;color:#9CA3AF;margin-top:4px;">${quiz.hint}</div>
+  card.innerHTML = `
+    <div style="font-size:32px;margin-bottom:12px;">🧠</div>
+    <div style="font-size:10px;font-weight:700;color:#16A34A;letter-spacing:0.5px;margin-bottom:10px;">퀴즈 정답!</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;line-height:1.5;">${quiz.q}</div>
+    <div style="font-size:15px;font-weight:800;color:var(--accent);margin-bottom:6px;">→ ${quiz.a}</div>
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:18px;line-height:1.5;">${quiz.hint}</div>
+    <button onclick="this.closest('div[style*=fixed]').remove()"
+      style="background:var(--accent);color:#fff;border:none;border-radius:10px;
+             padding:10px 32px;font-size:13px;font-weight:700;
+             font-family:var(--font-sans);cursor:pointer;">
+      확인
+    </button>
   `;
-  document.body.appendChild(toast);
-  setTimeout(() => {
-    toast.style.transition = 'opacity 0.4s';
-    toast.style.opacity = '0';
-    setTimeout(() => toast.remove(), 400);
-  }, 4000);
+  overlay.appendChild(card);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
 }
 
 function stopLoadingMsg() {

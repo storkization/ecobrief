@@ -731,7 +731,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v62';
+const CACHE_VERSION = 'v64';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1097,13 +1097,35 @@ function renderTabSummary(tab, result) {
       : '';
     const tabLabel = TAB_LABEL[tab];
 
-    // footnotes 줄별 파싱 (줄1:/줄2:/줄3: — **볼드** 마크다운 제거 후 파싱)
+    // footnotes 줄별 파싱 — carry-forward 방식 (줄당 각주 2개 이상 지원)
     const footnotesRaw = (result.footnotes || '').replace(/\*\*/g, '').replace(/^#+\s*/gm, '').replace(/^---+\s*/gm, '');
     const fnMap = { 1: [], 2: [], 3: [] };
+    let lastFnLine = null;
     footnotesRaw.split('\n').forEach(line => {
       const m = line.match(/줄([123]):\s*(.*)/);
-      if (m) fnMap[Number(m[1])].push(m[2].trim());
+      if (m) {
+        lastFnLine = Number(m[1]);
+        if (m[2].trim()) fnMap[lastFnLine].push(m[2].trim());
+      } else if (lastFnLine && line.trim().startsWith('※')) {
+        fnMap[lastFnLine].push(line.trim());
+      }
     });
+
+    // 용어 밑줄 헬퍼
+    function underlineTerms(text, fns) {
+      if (!fns.length) return text;
+      let result = text;
+      fns.forEach(fn => {
+        const raw = fn.split('│')[0].replace(/^※\s*/, '').trim();
+        if (!raw) return;
+        const escaped = raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        result = result.replace(
+          new RegExp(escaped, 'g'),
+          `<span style="text-decoration:underline;text-decoration-color:#1A7A45;text-underline-offset:3px;font-weight:600;">${raw}</span>`
+        );
+      });
+      return result;
+    }
 
     card.innerHTML = `
       <div class="summary-report-header">
@@ -1118,21 +1140,21 @@ function renderTabSummary(tab, result) {
           .replace(/^---+\s*#*\s*/gm, '')
           .replace(/#+\s/g, '')
           .trim();
+        const fns = fnMap[i + 1] || [];
         const isBullet = cleaned.includes('•');
         const lineContent = isBullet
           ? '<ul style="list-style:none;padding:0;margin:0;">' +
             cleaned.split(/•/).map(l => l.trim()).filter(l => l.length > 0).map(l =>
-              `<li style="display:flex;gap:8px;margin-bottom:6px;"><span style="color:#111827;font-weight:700;flex-shrink:0;">•</span><span>${l}</span></li>`
+              `<li style="display:flex;gap:8px;margin-bottom:6px;"><span style="color:#111827;font-weight:700;flex-shrink:0;">•</span><span>${underlineTerms(l, fns)}</span></li>`
             ).join('') + '</ul>'
-          : cleaned;
-        const fns = fnMap[i + 1] || [];
+          : underlineTerms(cleaned, fns);
         const fnHtml = fns.length
           ? fns.map(fn => {
               const parts = fn.split('│');
               if (parts.length >= 2) {
-                const term = parts[0].trim();
+                const term = parts[0].replace(/^※\s*/, '').trim();
                 const desc = parts.slice(1).join('│').trim();
-                return `<div class="summary-footnote"><span style="font-weight:700;">${term}</span> │ ${desc}</div>`;
+                return `<div class="summary-footnote">※ <span style="font-weight:700;text-decoration:underline;text-decoration-color:#1A7A45;text-underline-offset:3px;">${term}</span> │ ${desc}</div>`;
               }
               return `<div class="summary-footnote">${fn}</div>`;
             }).join('')
@@ -1333,11 +1355,28 @@ function renderColumn(tab, text) {
   if (!body) return;
 
   // 마크다운 → HTML 변환
-  const html = text
-    .replace(/^###\s(.+)$/gm, '<h3 style="font-size:14px;font-weight:800;color:#1A7A45;margin:18px 0 8px;letter-spacing:-0.2px;">$1</h3>')
-    .replace(/^---$/gm, '<hr style="border:none;border-top:1px solid #E5EDE8;margin:16px 0;">')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/^(?!<)(.+)$/gm, '<p style="font-size:14px;color:#111827;line-height:1.85;margin:0 0 8px;">$1</p>');
+  const lines = text.split('\n');
+  let isFirst = true;
+  const html = lines.map(line => {
+    // 첫 번째 비어있지 않은 줄 = 헤드라인 (# 포함 여부 무관)
+    if (isFirst && line.trim().length > 0) {
+      isFirst = false;
+      const headline = line.replace(/^#+\s*/, '').trim();
+      return `<div style="font-size:17px;font-weight:900;color:#111827;line-height:1.45;letter-spacing:-0.3px;margin-bottom:12px;">${headline}</div>`;
+    }
+    if (/^###\s/.test(line)) {
+      return `<h3 style="font-size:15px;font-weight:800;color:#1A7A45;margin:20px 0 8px;letter-spacing:-0.2px;">${line.replace(/^###\s/, '')}</h3>`;
+    }
+    if (/^#{1,2}\s/.test(line)) {
+      return `<div style="font-size:15px;font-weight:800;color:#1A7A45;margin:20px 0 8px;letter-spacing:-0.2px;">${line.replace(/^#+\s/, '')}</div>`;
+    }
+    if (/^---$/.test(line.trim())) {
+      return `<hr style="border:none;border-top:1px solid #E5EDE8;margin:16px 0;">`;
+    }
+    if (line.trim() === '') return '';
+    const content = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    return `<p style="font-size:14px;color:#111827;line-height:1.85;margin:0 0 8px;">${content}</p>`;
+  }).join('');
 
   body.innerHTML = `
     <div style="background:#FAFFFD;border:1px solid #D4E8DA;border-top:none;border-radius:0 0 12px 12px;padding:20px 20px 24px;">

@@ -22,7 +22,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 1200,
+        max_tokens: 2000,
         messages: [{
           role: 'user',
           content: `아래는 오늘의 [${label}] 분야 브리핑 내용이야.

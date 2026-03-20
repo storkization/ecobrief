@@ -444,6 +444,62 @@
     .fx-rate    { font-family:var(--font-mono); font-size:20px; font-weight:var(--fw-semi); color:var(--text); }
     .fx-unit    { font-family:var(--font-mono); font-size:var(--fs-caption); color:var(--text-dim); margin-top:3px; }
 
+    /* ════════════ SETTINGS ════════════ */
+    .settings-card {
+      background:#FFFFFF; border-radius:var(--radius); padding:20px;
+      margin-bottom:12px; box-shadow:var(--shadow-sm);
+    }
+    .settings-label {
+      font-family:var(--font-sans); font-size:15px; font-weight:var(--fw-bold);
+      color:var(--text); margin-bottom:4px;
+    }
+    .settings-desc {
+      font-size:12px; color:var(--text-muted); margin-bottom:14px;
+    }
+    .settings-row {
+      display:flex; gap:6px;
+    }
+    .settings-opt {
+      flex:1; padding:10px 0; border-radius:10px;
+      border:1.5px solid #E5E7EB; background:#fff;
+      font-family:var(--font-sans); font-size:11px; font-weight:var(--fw-semi);
+      color:var(--text-muted); cursor:pointer; transition:all 0.2s;
+    }
+    .settings-opt:active { transform:scale(0.96); }
+    .settings-opt.active {
+      background:var(--accent); border-color:var(--accent);
+      color:#fff; font-weight:var(--fw-bold);
+      box-shadow:0 2px 8px rgba(26,122,69,0.25);
+    }
+    .settings-info { display:flex; flex-direction:column; gap:0; }
+    .settings-info-row {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:12px 0; border-bottom:1px solid #F3F4F6;
+      font-family:var(--font-sans); font-size:13px;
+    }
+    .settings-info-row:last-child { border-bottom:none; }
+    .settings-info-row span:first-child { color:var(--text-muted); font-weight:var(--fw-medium); }
+    .settings-info-row span:last-child { color:var(--text); font-weight:var(--fw-semi); }
+    .changelog-item {
+      display:flex; gap:10px; padding:10px 0;
+      border-bottom:1px solid #F3F4F6; align-items:flex-start;
+    }
+    .changelog-item:last-child { border-bottom:none; }
+    .changelog-ver {
+      flex-shrink:0; width:60px;
+      font-family:var(--font-mono); font-size:11px; font-weight:var(--fw-bold);
+      color:var(--accent);
+    }
+    .changelog-body {
+      font-family:var(--font-sans); font-size:12px; color:var(--text-muted);
+      line-height:1.5;
+    }
+    .changelog-tag {
+      display:inline-block; font-size:8px; font-weight:700;
+      padding:1px 5px; border-radius:3px; vertical-align:middle; margin-left:2px;
+    }
+    .tag-latest { background:var(--accent); color:#fff; }
+
     .modal-backdrop {
       display:none; position:fixed; inset:0;
       background:rgba(0,0,0,.75);
@@ -503,6 +559,7 @@
     <button class="tab-btn" data-tab="global">🌐 국제</button>
     <button class="tab-btn" data-tab="stocks">📈 주식</button>
     <button class="tab-btn" data-tab="fx">💱 환율</button>
+    <button class="tab-btn" data-tab="settings">⚙️ 설정</button>
   </div>
 
   <!-- CHIPS (뉴스 탭용) -->
@@ -630,6 +687,135 @@
       <div class="fx-grid" id="fx-grid"></div>
     </div>
 
+    <!-- ▸ SETTINGS -->
+    <div class="tab-panel" id="tab-settings">
+      <div style="text-align:center;padding:24px 20px 16px;">
+        <div style="font-family:var(--font-serif);font-size:18px;font-weight:900;color:var(--text);letter-spacing:-0.3px;">⚙️ 설정</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">앱 환경을 커스터마이즈하세요</div>
+      </div>
+
+      <!-- 글꼴 크기 -->
+      <div class="settings-card">
+        <div class="settings-label">📐 글꼴 크기</div>
+        <div class="settings-desc">본문 텍스트 크기를 조절합니다 · <span style="color:var(--accent);">기본값: 보통</span></div>
+        <div class="settings-row" id="font-size-btns">
+          <button class="settings-opt" data-size="xs" onclick="setFontSize('xs')">매우 작게</button>
+          <button class="settings-opt" data-size="small" onclick="setFontSize('small')">작게</button>
+          <button class="settings-opt active" data-size="medium" onclick="setFontSize('medium')">보통</button>
+          <button class="settings-opt" data-size="large" onclick="setFontSize('large')">크게</button>
+          <button class="settings-opt" data-size="xl" onclick="setFontSize('xl')">더 크게</button>
+        </div>
+      </div>
+
+      <!-- 시작 탭 -->
+      <div class="settings-card">
+        <div class="settings-label">🏠 시작 탭</div>
+        <div class="settings-desc">앱을 열 때 처음 보이는 탭을 설정합니다 · <span style="color:var(--accent);">기본값: 경제</span></div>
+        <div class="settings-row" id="start-tab-btns">
+          <button class="settings-opt" data-start="front" onclick="setStartTab('front')">1면</button>
+          <button class="settings-opt active" data-start="economy" onclick="setStartTab('economy')">경제</button>
+          <button class="settings-opt" data-start="industry" onclick="setStartTab('industry')">산업</button>
+          <button class="settings-opt" data-start="global" onclick="setStartTab('global')">국제</button>
+        </div>
+      </div>
+
+      <!-- 앱 정보 -->
+      <div class="settings-card">
+        <div class="settings-label">ℹ️ 앱 정보</div>
+        <div class="settings-info">
+          <div class="settings-info-row"><span>앱 이름</span><span>Econ.SOOP 경제숲</span></div>
+          <div class="settings-info-row"><span>버전</span><span id="settings-version">v85</span></div>
+          <div class="settings-info-row"><span>개발자</span><span>Shawn Kim (김도훈)</span></div>
+          <div class="settings-info-row"><span>AI 엔진</span><span>Claude Sonnet</span></div>
+          <div class="settings-info-row" style="flex-direction:column;align-items:flex-start;gap:4px;">
+            <span>업데이트 시간</span>
+            <span style="font-size:12px;color:var(--accent);font-weight:600;">07:30 · 11:30 · 14:00 · 16:30 · 20:00 · 22:30 KST</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 개발 정보 -->
+      <div class="settings-card">
+        <div class="settings-label">🛠 개발 정보</div>
+        <div class="settings-info">
+          <div class="settings-info-row"><span>프론트엔드</span><span>HTML · CSS · Vanilla JS</span></div>
+          <div class="settings-info-row"><span>호스팅</span><span>Vercel (Serverless)</span></div>
+          <div class="settings-info-row"><span>뉴스 소스</span><span>Naver News API</span></div>
+          <div class="settings-info-row"><span>AI 브리핑</span><span>Anthropic Claude Sonnet</span></div>
+          <div class="settings-info-row"><span>코드 저장소</span><span style="font-family:var(--font-mono);font-size:11px;">github.com/storkization/econsoop</span></div>
+          <div class="settings-info-row"><span>개발 방식</span><span>AI-assisted Vibe Coding</span></div>
+          <div class="settings-info-row" id="settings-changelog-row" style="flex-direction:column;align-items:flex-start;gap:0;">
+            <span style="margin-bottom:8px;">업데이트 내역</span>
+            <div style="width:100%;max-height:320px;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+              <div class="changelog-item">
+                <div class="changelog-ver">v85 <span class="changelog-tag tag-latest">최신</span></div>
+                <div class="changelog-body">설정 탭 추가 (글꼴 크기 5단계, 시작 탭, 앱/개발 정보, 업데이트 내역)</div>
+              </div>
+              <div class="changelog-item">
+                <div class="changelog-ver">v82</div>
+                <div class="changelog-body">로딩 UX 6단계 진행바, 헤더 업데이트 시간 표시</div>
+              </div>
+              <div class="changelog-item">
+                <div class="changelog-ver">v78</div>
+                <div class="changelog-body">칼럼 스케줄 캐시, iOS 폰트 최적화, 퀴즈 50문항</div>
+              </div>
+              <div class="changelog-item">
+                <div class="changelog-ver">v75</div>
+                <div class="changelog-body">전면 UI/UX 개선 — pill 탭, 헤더 경량화, 퀴즈 모달</div>
+              </div>
+              <div class="changelog-item">
+                <div class="changelog-ver">v72</div>
+                <div class="changelog-body">로딩 프로그레스 바, 경제 퀴즈, 용어 카드 도입</div>
+              </div>
+              <div class="changelog-item">
+                <div class="changelog-ver">v69</div>
+                <div class="changelog-body">DEV MODE 개발 오버레이 (배너, 워터마크, 태그)</div>
+              </div>
+              <div class="changelog-item">
+                <div class="changelog-ver">v62</div>
+                <div class="changelog-body">AI 엔진 Claude Sonnet 4.6 업그레이드</div>
+              </div>
+              <div class="changelog-item">
+                <div class="changelog-ver">v56~60</div>
+                <div class="changelog-body">Footnote 정확도 개선 — 할루시네이션 방지 프롬프트 강화</div>
+              </div>
+              <div class="changelog-item">
+                <div class="changelog-ver">v49</div>
+                <div class="changelog-body">DEV MODE 플래그, 더미 데이터 시스템 구축</div>
+              </div>
+              <div class="changelog-item">
+                <div class="changelog-ver">v48</div>
+                <div class="changelog-body">타이포그래피 시스템 통일 (CSS 변수화)</div>
+              </div>
+              <div class="changelog-item">
+                <div class="changelog-ver">v37~46</div>
+                <div class="changelog-body">쓰리포인트 분석 (Why/So What/Focus), 칼럼 펼치기, 스케줄 6회</div>
+              </div>
+              <div class="changelog-item">
+                <div class="changelog-ver">v24~31</div>
+                <div class="changelog-body">Footnote 용어 설명, ONELINER 구조화, 키워드 고도화</div>
+              </div>
+              <div class="changelog-item">
+                <div class="changelog-ver">v20</div>
+                <div class="changelog-body">원포인트 요약, Service Worker 캐시 최적화</div>
+              </div>
+              <div class="changelog-item">
+                <div class="changelog-ver">v1.0</div>
+                <div class="changelog-body">Econ.SOOP 첫 출시 — 탭/서브칩 구조, AI 브리핑, 네이버 뉴스 연동</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;padding:20px 0 40px;">
+        <div style="font-size:11px;color:var(--text-dim);line-height:1.6;">
+          나무가 아닌 숲을 보라 🌲<br>
+          <span style="font-family:var(--font-mono);font-size:10px;">© 2025 Shawn Kim. All rights reserved.</span>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /content -->
 </div><!-- /app -->
 
@@ -704,7 +890,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v82';
+const CACHE_VERSION = 'v85';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -796,8 +982,12 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
 
-  // 앱 시작 = 경제 탭 바로 로드
-  switchTab('economy');
+  // 앱 시작 = 저장된 시작 탭 로드
+  const startTab = localStorage.getItem('eco_start_tab') || 'economy';
+  switchTab(startTab);
+
+  // 설정 초기화
+  initSettings();
 
   // 헤더 축소 — 스크롤 내리면 header-sub 숨김
   const contentEl = document.querySelector('.content');
@@ -1882,6 +2072,40 @@ async function loadFX(){
   } catch {
     document.getElementById('usdkrw').textContent = 'ERR';
   }
+}
+
+/* ═══════════ SETTINGS ═══════════ */
+const FONT_SIZES = { xs: 82, small: 90, medium: 100, large: 110, xl: 120 };
+
+function setFontSize(size) {
+  const pct = FONT_SIZES[size] || 100;
+  document.documentElement.style.fontSize = pct + '%';
+  localStorage.setItem('eco_font_size', size);
+  // UI 반영
+  document.querySelectorAll('#font-size-btns .settings-opt').forEach(b => {
+    b.classList.toggle('active', b.dataset.size === size);
+  });
+}
+
+function setStartTab(tab) {
+  localStorage.setItem('eco_start_tab', tab);
+  document.querySelectorAll('#start-tab-btns .settings-opt').forEach(b => {
+    b.classList.toggle('active', b.dataset.start === tab);
+  });
+}
+
+function initSettings() {
+  // 글꼴 크기 복원
+  const savedFont = localStorage.getItem('eco_font_size') || 'medium';
+  setFontSize(savedFont);
+  // 시작 탭 UI 복원
+  const savedStart = localStorage.getItem('eco_start_tab') || 'economy';
+  document.querySelectorAll('#start-tab-btns .settings-opt').forEach(b => {
+    b.classList.toggle('active', b.dataset.start === savedStart);
+  });
+  // 버전 표시
+  const verEl = document.getElementById('settings-version');
+  if (verEl) verEl.textContent = CACHE_VERSION;
 }
 
 function closeModal(e){

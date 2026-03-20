@@ -760,7 +760,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v68';
+const CACHE_VERSION = 'v69';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -782,10 +782,65 @@ let fxRates = null;
 document.addEventListener('DOMContentLoaded', () => {
   // 개발모드 배너
   if (DEV_MODE) {
+    // ① 상단 고정 배너
     const banner = document.createElement('div');
-    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#F59E0B;color:#000;text-align:center;font-size:11px;font-weight:700;padding:4px;font-family:monospace;max-width:480px;margin:0 auto;';
-    banner.textContent = '⚠️ DEV MODE — AI 호출 없음';
+    banner.style.cssText = `
+      position:fixed;top:0;left:0;right:0;z-index:9999;
+      background:#DC2626;color:#fff;text-align:center;
+      font-size:11px;font-weight:700;padding:5px 8px;
+      font-family:monospace;max-width:480px;margin:0 auto;
+      letter-spacing:0.5px;
+    `;
+    banner.innerHTML = '🚧 DEV MODE &nbsp;|&nbsp; ⚠️ 더미 데이터 &nbsp;|&nbsp; AI 호출 없음';
     document.body.appendChild(banner);
+
+    // ② 배경 워터마크 (대각선 반복 텍스트)
+    const wm = document.createElement('div');
+    wm.style.cssText = `
+      position:fixed;inset:0;z-index:0;pointer-events:none;
+      display:flex;align-items:center;justify-content:center;
+      overflow:hidden;
+    `;
+    wm.innerHTML = `<div style="
+      transform:rotate(-30deg);
+      font-size:28px;font-weight:900;
+      color:rgba(220,38,38,0.055);
+      font-family:monospace;letter-spacing:2px;
+      white-space:nowrap;line-height:3.2;
+      width:200%;text-align:center;
+      word-spacing:40px;
+    ">${Array(60).fill('DEV MODE · DUMMY DATA').join('  ')}</div>`;
+    document.body.appendChild(wm);
+
+    // ③ 떠다니는 태그 카드들
+    const tags = [
+      { text: '🧪 개발 화면', sub: '최종 배포 시 제외' },
+      { text: '📊 더미 데이터', sub: '실데이터 아님' },
+      { text: '🎨 UI/UX 확인용', sub: '레이아웃 테스트 중' },
+      { text: '⚙️ DATA CHECK', sub: '테스트 전용' },
+    ];
+    const positions = [
+      { bottom:'120px', right:'12px' },
+      { bottom:'220px', left:'12px' },
+      { bottom:'340px', right:'12px' },
+      { top:'80px',    left:'12px'  },
+    ];
+    tags.forEach((tag, i) => {
+      const el = document.createElement('div');
+      const pos = positions[i];
+      const posStr = Object.entries(pos).map(([k,v])=>`${k}:${v}`).join(';');
+      el.style.cssText = `
+        position:fixed;${posStr};z-index:9990;
+        background:rgba(220,38,38,0.88);color:#fff;
+        border-radius:8px;padding:6px 10px;
+        font-family:monospace;font-size:10px;font-weight:700;
+        line-height:1.5;letter-spacing:0.3px;
+        box-shadow:0 2px 8px rgba(0,0,0,0.2);
+        pointer-events:none;
+      `;
+      el.innerHTML = `${tag.text}<br><span style="font-weight:400;opacity:0.85;">${tag.sub}</span>`;
+      document.body.appendChild(el);
+    });
   }
   const d = new Date();
   const days = ['일','월','화','수','목','금','토'];

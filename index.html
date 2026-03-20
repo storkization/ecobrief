@@ -508,22 +508,24 @@
     }
     .tag-latest { background:var(--accent); color:#fff; }
     .settings-actions {
-      display:flex; gap:8px; margin-top:12px; justify-content:flex-end;
+      display:flex; gap:10px; margin-top:14px; padding-top:14px;
+      border-top:1px solid #F0F0F0;
     }
     .settings-apply {
-      padding:8px 24px; border-radius:8px; border:none;
+      flex:1; padding:11px 0; border-radius:10px; border:none;
       background:var(--accent); color:#fff;
-      font-family:var(--font-sans); font-size:12px; font-weight:var(--fw-bold);
-      cursor:pointer; transition:opacity 0.2s;
+      font-family:var(--font-sans); font-size:13px; font-weight:var(--fw-bold);
+      cursor:pointer; transition:all 0.2s;
+      box-shadow:0 2px 8px rgba(26,122,69,0.25);
     }
-    .settings-apply:active { opacity:0.7; }
+    .settings-apply:active { opacity:0.7; transform:scale(0.97); }
     .settings-cancel {
-      padding:8px 20px; border-radius:8px;
+      padding:11px 20px; border-radius:10px;
       border:1.5px solid #E5E7EB; background:#fff; color:var(--text-muted);
-      font-family:var(--font-sans); font-size:12px; font-weight:var(--fw-semi);
-      cursor:pointer; transition:opacity 0.2s;
+      font-family:var(--font-sans); font-size:13px; font-weight:var(--fw-semi);
+      cursor:pointer; transition:all 0.2s;
     }
-    .settings-cancel:active { opacity:0.7; }
+    .settings-cancel:active { opacity:0.7; transform:scale(0.97); }
 
     .modal-backdrop {
       display:none; position:fixed; inset:0;
@@ -744,8 +746,8 @@
           <button class="settings-opt" data-size="xl" onclick="previewFontSize('xl')">더 크게</button>
         </div>
         <div id="font-size-actions" class="settings-actions" style="display:none;">
-          <button class="settings-apply" onclick="applyFontSize()">적용</button>
-          <button class="settings-cancel" onclick="cancelFontSize()">취소</button>
+          <button class="settings-apply" onclick="applyFontSize()">✓ 적용하기</button>
+          <button class="settings-cancel" onclick="cancelFontSize()">되돌리기</button>
         </div>
       </div>
 
@@ -760,8 +762,8 @@
           <button class="settings-opt" data-start="global" onclick="previewStartTab('global')">국제</button>
         </div>
         <div id="start-tab-actions" class="settings-actions" style="display:none;">
-          <button class="settings-apply" onclick="applyStartTab()">적용</button>
-          <button class="settings-cancel" onclick="cancelStartTab()">취소</button>
+          <button class="settings-apply" onclick="applyStartTab()">✓ 적용하기</button>
+          <button class="settings-cancel" onclick="cancelStartTab()">되돌리기</button>
         </div>
       </div>
 
@@ -980,7 +982,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v90';
+const CACHE_VERSION = 'v91';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1092,15 +1094,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
   }
 
-  // 탭 가로 스크롤 — 마우스 휠 → 가로 변환 (윈도우 지원)
+  // 탭 가로 스크롤 — 휠 + 드래그 (윈도우/데스크톱 지원)
   const tabsEl = document.querySelector('.tabs');
   if (tabsEl) {
+    // 휠 → 가로
     tabsEl.addEventListener('wheel', (e) => {
       if (Math.abs(e.deltaY) > 0) {
         e.preventDefault();
-        tabsEl.scrollLeft += e.deltaY;
+        tabsEl.scrollLeft += e.deltaY * 2;
       }
     }, { passive: false });
+    // 마우스 드래그 → 가로
+    let isDragging = false, startX = 0, scrollStart = 0;
+    tabsEl.addEventListener('mousedown', (e) => {
+      isDragging = true; startX = e.pageX; scrollStart = tabsEl.scrollLeft;
+      tabsEl.style.cursor = 'grabbing';
+    });
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      tabsEl.scrollLeft = scrollStart - (e.pageX - startX);
+    });
+    document.addEventListener('mouseup', () => {
+      isDragging = false; tabsEl.style.cursor = '';
+    });
   }
 });
 
@@ -1635,10 +1651,15 @@ function renderTabSummary(tab, result) {
     console.log('[SUMMARY RAW]', JSON.stringify(result.summary));
 
     // 줄1:/줄2:/줄3: 패턴 (한줄/멀티라인 모두 대응)
-    const summaryClean = (result.summary || '').replace(/\*\*/g, '').replace(/^#+\s*/gm, '').replace(/^---+\s*/gm, '');
+    const summaryClean = (result.summary || '')
+      .replace(/\*\*/g, '')
+      .replace(/^#+\s*/gm, '')
+      .replace(/^---+\s*/gm, '')
+      .replace(/\[\/?(SUMMARY|ONELINER|FOOTNOTES|BRIEFING)\]/g, '')
+      .trim();
     const m1 = summaryClean.match(/줄1:\s*(.+?)(?=\s*줄2:|$)/s);
     const m2 = summaryClean.match(/줄2:\s*(.+?)(?=\s*줄3:|$)/s);
-    const m3 = summaryClean.match(/줄3:\s*(.+?)$/s);
+    const m3 = summaryClean.match(/줄3:\s*(.+?)(?=\s*\[|배경\(상황\)|$)/s);
     const lines = [m1, m2, m3].map(m => m ? m[1].trim() : null).filter(Boolean);
     console.log('[PARSED LINES]', lines);
 
@@ -2245,20 +2266,23 @@ async function loadFX(){
 }
 
 /* ═══════════ SETTINGS ═══════════ */
-const FONT_SIZES = { xs: 82, small: 90, medium: 100, large: 110, xl: 120 };
-let _savedFontSize = 'medium';   // 저장된 값
-let _previewFontSize = null;     // 미리보기 중인 값
+const FONT_SIZES = { xs: 85, small: 92, medium: 100, large: 108, xl: 116 };
+let _savedFontSize = 'medium';
+let _previewFontSize = null;
 let _savedStartTab = 'economy';
 let _previewStartTab = null;
 
+function applyZoom(pct) {
+  const contentEl = document.querySelector('.content');
+  if (contentEl) contentEl.style.zoom = (pct / 100);
+}
+
 function previewFontSize(size) {
   _previewFontSize = size;
-  // 즉시 미리보기 적용
-  document.documentElement.style.fontSize = (FONT_SIZES[size] || 100) + '%';
+  applyZoom(FONT_SIZES[size] || 100);
   document.querySelectorAll('#font-size-btns .settings-opt').forEach(b => {
     b.classList.toggle('active', b.dataset.size === size);
   });
-  // 변경 있으면 적용/취소 표시
   document.getElementById('font-size-actions').style.display =
     (size !== _savedFontSize) ? 'flex' : 'none';
 }
@@ -2273,8 +2297,7 @@ function applyFontSize() {
 
 function cancelFontSize() {
   _previewFontSize = null;
-  // 저장된 값으로 복원
-  document.documentElement.style.fontSize = (FONT_SIZES[_savedFontSize] || 100) + '%';
+  applyZoom(FONT_SIZES[_savedFontSize] || 100);
   document.querySelectorAll('#font-size-btns .settings-opt').forEach(b => {
     b.classList.toggle('active', b.dataset.size === _savedFontSize);
   });
@@ -2307,13 +2330,11 @@ function cancelStartTab() {
 }
 
 function initSettings() {
-  // 글꼴 크기 복원
   _savedFontSize = localStorage.getItem('eco_font_size') || 'medium';
-  document.documentElement.style.fontSize = (FONT_SIZES[_savedFontSize] || 100) + '%';
+  applyZoom(FONT_SIZES[_savedFontSize] || 100);
   document.querySelectorAll('#font-size-btns .settings-opt').forEach(b => {
     b.classList.toggle('active', b.dataset.size === _savedFontSize);
   });
-  // 시작 탭 복원
   _savedStartTab = localStorage.getItem('eco_start_tab') || 'economy';
   document.querySelectorAll('#start-tab-btns .settings-opt').forEach(b => {
     b.classList.toggle('active', b.dataset.start === _savedStartTab);

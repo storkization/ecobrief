@@ -762,7 +762,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v72';
+const CACHE_VERSION = 'v73';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -879,6 +879,20 @@ function ago(d){
   const h = Math.floor(m/60);
   if(h<24) return h+'시간 전';
   return Math.floor(h/24)+'일 전';
+}
+
+/* ═══════════ BATCH FETCH (429 방지) ═══════════ */
+async function fetchInBatches(items, fn, batchSize = 3, delay = 250) {
+  const results = [];
+  for (let i = 0; i < items.length; i += batchSize) {
+    const batch = items.slice(i, i + batchSize);
+    const batchResults = await Promise.all(batch.map(fn));
+    results.push(...batchResults);
+    if (i + batchSize < items.length) {
+      await new Promise(r => setTimeout(r, delay));
+    }
+  }
+  return results;
 }
 
 /* ═══════════ TAB SWITCHING ═══════════ */
@@ -1226,7 +1240,7 @@ async function genTabSummary(tab) {
     }
   };
 
-  const results = await Promise.all(queries.map(q => fetchNews(q)));
+  const results = await fetchInBatches(queries, fetchNews, 3, 250);
   const allItems = results.flat();
 
   const skipKw = ['구직','채용','취업','자립준비','희망디딤돌','주요기사','1부','2부'];
@@ -1282,8 +1296,12 @@ async function genTabSummary(tab) {
     _briefingController = null;
     console.log('[BRIEFING] 응답 상태:', res.status);
     const j = await res.json();
+    console.log('[BRIEFING] 응답 키:', Object.keys(j), 'summary 길이:', (j.summary||'').length);
     if (!res.ok) {
       throw new Error(j.error || `API 오류 ${res.status}`);
+    }
+    if (!j.summary || j.summary.trim().length === 0) {
+      throw new Error('AI 응답에서 SUMMARY 파싱 실패 — 다시 시도해주세요');
     }
     const result = {
       summary: j.summary || '',
@@ -1692,19 +1710,17 @@ async function loadSubNews(tab, chipId) {
   if (!chipConfig) return;
 
   const allItems = [];
-  const subResults = await Promise.all(
-    chipConfig.queries.map(async q => {
-      try {
-        const r = await fetch(`/api/news?query=${encodeURIComponent(q)}&display=15&type=general`,
-          { signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 5000); return c.signal; })() });
-        const j = await r.json();
-        return j.items || [];
-      } catch(e) {
-        console.warn("[NEWS FETCH ERROR]", q, e.message);
-        return [];
-      }
-    })
-  );
+  const subResults = await fetchInBatches(chipConfig.queries, async q => {
+    try {
+      const r = await fetch(`/api/news?query=${encodeURIComponent(q)}&display=15&type=general`,
+        { signal: (function(){ const c = new AbortController(); setTimeout(()=>c.abort(), 5000); return c.signal; })() });
+      const j = await r.json();
+      return j.items || [];
+    } catch(e) {
+      console.warn("[NEWS FETCH ERROR]", q, e.message);
+      return [];
+    }
+  }, 3, 250);
   allItems.push(...subResults.flat());
 
   const skipKw = ['구직','채용','취업','자립준비','희망디딤돌','주요기사','1부','2부'];

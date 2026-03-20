@@ -154,6 +154,15 @@
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
     /* ── TABS ── */
+    .tabs-container {
+      position:relative; flex-shrink:0;
+    }
+    .tabs-container::after {
+      content:''; position:absolute; top:0; right:0; bottom:1px;
+      width:32px; pointer-events:none;
+      background:linear-gradient(to right, transparent, #FFFFFF);
+      z-index:1;
+    }
     .tabs {
       display:flex; background:#FFFFFF;
       border-bottom:1px solid #E5EFE8;
@@ -567,6 +576,7 @@
   </div>
 
   <!-- TABS -->
+  <div class="tabs-container">
   <div class="tabs">
     <button class="tab-btn" data-tab="breaking">🚨 속보</button>
     <button class="tab-btn" data-tab="front">🗞 1면</button>
@@ -576,6 +586,8 @@
     <button class="tab-btn" data-tab="stocks">📈 주식</button>
     <button class="tab-btn" data-tab="fx">💱 환율</button>
     <button class="tab-btn" data-tab="settings">⚙️ 설정</button>
+    <div style="flex-shrink:0;width:24px;"></div>
+  </div>
   </div>
 
   <!-- CHIPS (뉴스 탭용) -->
@@ -850,10 +862,46 @@
         </div>
       </div>
 
-      <div style="text-align:center;padding:20px 0 40px;">
-        <div style="font-size:11px;color:var(--text-dim);line-height:1.6;">
-          나무가 아닌 숲을 보라 🌲<br>
-          <span style="font-family:var(--font-mono);font-size:10px;">© 2025 Shawn Kim. All rights reserved.</span>
+      <!-- 후원 안내 -->
+      <div style="margin:8px 0 0;padding:0 0 40px;">
+        <div style="background:linear-gradient(145deg,#0D3320 0%,#1A5C35 50%,#164A2E 100%);border-radius:14px;padding:28px 22px;box-shadow:0 4px 20px rgba(13,51,32,0.2);">
+          <div style="font-size:22px;margin-bottom:12px;">🌲</div>
+          <div style="font-family:var(--font-serif);font-size:16px;font-weight:900;color:#fff;line-height:1.5;letter-spacing:-0.3px;margin-bottom:16px;">
+            더욱 푸른 경제숲이 될 수 있도록<br>소중한 물을 보태 주세요.
+          </div>
+          <div style="font-family:var(--font-sans);font-size:12.5px;font-weight:400;color:rgba(255,255,255,0.88);line-height:1.9;letter-spacing:-0.1px;">
+            경제숲, Econ.SOOP 앱은 저의 작은 프로젝트로 시작되었습니다. 대기업 전략기획 경력을 통해 쌓은 문제 구조화 노하우를 AI 프롬프팅 기술에 응용하였습니다. 누구나 쉽게 경제 이슈를 파악하고, 변화에 한 발자국 더 빨리 대응할 수 있는 정보 전달 앱을 기획하였습니다.
+          </div>
+          <div style="font-family:var(--font-sans);font-size:12.5px;font-weight:400;color:rgba(255,255,255,0.88);line-height:1.9;letter-spacing:-0.1px;margin-top:14px;">
+            저는 앱을 통해 정보 수집과 논리적 추론을 생성하는 고성능 AI 모델을 사용하여 인사이트 있는 경제 정보를 제공하고자 합니다. 높은 사양의 AI 엔진을 사용하고 사이트를 유지하는 데는 적지 않은 비용과 시간이 소요됩니다. 더욱 양질의 정보를 제공할 수 있도록, 관심과 응원을 보태주신다면 대단히 감사하겠습니다.
+          </div>
+          <div style="display:flex;gap:10px;margin-top:22px;">
+            <button onclick="alert('정기 구독 기능은 준비 중입니다. 곧 만나요! 🌱')"
+              style="flex:1;padding:13px 0;border-radius:10px;border:none;
+                     background:#fff;color:#0D3320;
+                     font-family:var(--font-sans);font-size:13px;font-weight:800;
+                     cursor:pointer;transition:opacity 0.2s;letter-spacing:-0.2px;">
+              🌱 숲에 물 주기
+            </button>
+            <button onclick="alert('사이트 후원 기능은 준비 중입니다. 감사합니다! 🌲')"
+              style="flex:1;padding:13px 0;border-radius:10px;
+                     border:1.5px solid rgba(255,255,255,0.35);background:transparent;color:#fff;
+                     font-family:var(--font-sans);font-size:13px;font-weight:700;
+                     cursor:pointer;transition:opacity 0.2s;letter-spacing:-0.2px;">
+              🌲 경제숲 키우기
+            </button>
+          </div>
+          <div style="display:flex;gap:14px;margin-top:14px;justify-content:center;">
+            <span style="font-size:10px;color:rgba(255,255,255,0.45);font-family:var(--font-mono);">정기 구독</span>
+            <span style="font-size:10px;color:rgba(255,255,255,0.45);font-family:var(--font-mono);">사이트 후원</span>
+          </div>
+          <div style="margin-top:20px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.12);">
+            <div style="font-family:var(--font-serif);font-size:12px;color:rgba(255,255,255,0.6);letter-spacing:0.3px;">나무가 아닌 숲을 보라</div>
+            <div style="font-family:var(--font-mono);font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px;">— Shawn Kim, 경제숲 개발자</div>
+          </div>
+        </div>
+        <div style="text-align:center;margin-top:16px;">
+          <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);">© 2025 Shawn Kim. All rights reserved.</span>
         </div>
       </div>
     </div>
@@ -932,7 +980,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v88';
+const CACHE_VERSION = 'v90';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1042,6 +1090,17 @@ document.addEventListener('DOMContentLoaded', () => {
     contentEl.addEventListener('scroll', () => {
       headerEl.classList.toggle('shrunk', contentEl.scrollTop > 30);
     }, { passive: true });
+  }
+
+  // 탭 가로 스크롤 — 마우스 휠 → 가로 변환 (윈도우 지원)
+  const tabsEl = document.querySelector('.tabs');
+  if (tabsEl) {
+    tabsEl.addEventListener('wheel', (e) => {
+      if (Math.abs(e.deltaY) > 0) {
+        e.preventDefault();
+        tabsEl.scrollLeft += e.deltaY;
+      }
+    }, { passive: false });
   }
 });
 
@@ -1246,11 +1305,6 @@ function setLoadingMsg(tab, phase, count = null) {
 
   function renderLoading() {
     const ci = _aiStepIndex; // current index (0~6, 6=all done)
-    const isNews = ci === 0;
-    const subMsg = isNews ? '뉴스를 수집하고 있어요'
-      : ci <= 2 ? 'AI가 브리핑을 준비하고 있어요'
-      : ci >= 5 ? '브리핑이 완성됐어요!'
-      : '거의 다 됐어요! 마무리 중입니다';
 
     // 가로 1줄 6단계
     const stepItems = ALL_STEPS.map((s, idx) => {
@@ -1277,11 +1331,8 @@ function setLoadingMsg(tab, phase, count = null) {
     }).join('');
 
     const stepBar = `
-      <div style="display:flex;align-items:flex-start;justify-content:center;margin:20px 0 10px;overflow-x:auto;">
+      <div style="display:flex;align-items:flex-start;justify-content:center;margin:20px 0 18px;overflow-x:auto;">
         ${stepItems}
-      </div>
-      <div style="text-align:center;margin:4px 0 18px;">
-        <span style="font-size:10px;color:#9CA3AF;font-family:var(--font-mono);">뉴스 양에 따라 10~30초 정도 걸릴 수 있어요</span>
       </div>`;
 
     const quizCard = _currentQuiz ? `
@@ -1293,7 +1344,6 @@ function setLoadingMsg(tab, phase, count = null) {
     card.innerHTML = `
       <div style="padding:24px 20px;">
         <div style="font-family:var(--font-serif);font-size:15px;font-weight:900;color:var(--text);letter-spacing:-0.3px;margin-bottom:4px;text-align:center;">Shawn Kim's Daily Briefing</div>
-        <div style="font-size:11px;color:var(--text-dim);text-align:center;margin-bottom:4px;">${subMsg}</div>
         ${stepBar}
         ${quizCard}
         <div style="text-align:center;">
@@ -1301,6 +1351,7 @@ function setLoadingMsg(tab, phase, count = null) {
           <div style="color:var(--text-muted);font-size:12px;font-weight:500;">${msgs[msgIdx % msgs.length]}</div>
         </div>
         <div style="text-align:center;margin-top:20px;">
+          <div style="font-size:10px;color:#9CA3AF;font-family:var(--font-mono);margin-bottom:12px;">뉴스 양에 따라 10~30초 정도 걸릴 수 있어요</div>
           <button onclick="cancelBriefing('${tab}')"
             style="background:transparent;border:1.5px solid #E5E7EB;border-radius:8px;
                    padding:7px 18px;font-size:11px;font-weight:600;color:var(--text-dim);

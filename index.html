@@ -117,6 +117,14 @@
     }
     .header.shrunk .app-logo span { font-size:11px; }
     .header-right { text-align:right; }
+    .header-schedule {
+      font-family:var(--font-mono);
+      font-size:9px; color:var(--text-dim);
+      margin-top:2px; letter-spacing:0.3px;
+      max-height:20px; opacity:1; overflow:hidden;
+      transition: max-height 0.3s ease, opacity 0.25s ease, margin-top 0.3s ease;
+    }
+    .header.shrunk .header-schedule { max-height:0; opacity:0; margin-top:0; }
     .header-date {
       font-family:var(--font-mono);
       font-size:11px; color:var(--text-muted);
@@ -478,6 +486,7 @@
       <div class="header-right">
         <div class="live-dot">LIVE</div>
         <div class="header-date" id="headerDate"></div>
+        <div class="header-schedule">업데이트 07:30 · 11:30 · 14:00 · 16:30 · 20:00 · 22:30</div>
       </div>
     </div>
     <div class="header-sub">
@@ -695,7 +704,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v80';
+const CACHE_VERSION = 'v82';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -999,45 +1008,42 @@ function setLoadingMsg(tab, phase, count = null) {
   ];
 
   function renderLoading() {
-    const ci = _aiStepIndex; // current index (0~4 during loading)
+    const ci = _aiStepIndex; // current index (0~6, 6=all done)
     const isNews = ci === 0;
-    const countText = count !== null ? `${count}건 수집됨` : '수집 중...';
     const subMsg = isNews ? '뉴스를 수집하고 있어요'
       : ci <= 2 ? 'AI가 브리핑을 준비하고 있어요'
+      : ci >= 5 ? '브리핑이 완성됐어요!'
       : '거의 다 됐어요! 마무리 중입니다';
 
-    // 세로 타임라인
-    const stepRows = ALL_STEPS.map((s, idx) => {
+    // 가로 1줄 6단계
+    const stepItems = ALL_STEPS.map((s, idx) => {
       const done = idx < ci;
       const active = idx === ci;
       const isLast = idx === ALL_STEPS.length - 1;
-      const dotBg = done ? '#1A7A45' : active ? '#fff' : '#E5E7EB';
+      const dotSize = 18;
+      const dotBg = done ? '#1A7A45' : active ? '#fff' : '#F3F4F6';
       const dotBorder = (done || active) ? '#1A7A45' : '#D1D5DB';
-      const textColor = done ? '#1A7A45' : active ? '#111827' : '#9CA3AF';
-      const textWeight = active ? '700' : done ? '600' : '400';
+      const textColor = done ? '#1A7A45' : active ? '#1A7A45' : '#C4C9CF';
+      const textWeight = active ? '700' : '500';
       const lineColor = done ? '#1A7A45' : '#E5E7EB';
-      const subInfo = active && isNews ? `<div style="font-size:10px;color:#6B7280;margin-top:1px;">${countText}</div>` : '';
 
       return `
-        <div style="display:flex;align-items:flex-start;gap:12px;position:relative;">
-          <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:24px;">
-            <div style="width:22px;height:22px;border-radius:50%;background:${dotBg};border:2px solid ${dotBorder};display:flex;align-items:center;justify-content:center;z-index:1;">
-              ${done ? `<span style="color:#fff;font-weight:700;font-size:10px;">✓</span>` : active ? `<div style="width:7px;height:7px;border-radius:50%;background:#1A7A45;animation:pulse 1s infinite;"></div>` : ''}
+        <div style="display:flex;align-items:center;flex-shrink:0;">
+          <div style="display:flex;flex-direction:column;align-items:center;width:48px;">
+            <div style="width:${dotSize}px;height:${dotSize}px;border-radius:50%;background:${dotBg};border:2px solid ${dotBorder};display:flex;align-items:center;justify-content:center;">
+              ${done ? `<span style="color:#fff;font-weight:700;font-size:9px;">✓</span>` : active ? `<div style="width:6px;height:6px;border-radius:50%;background:#1A7A45;animation:pulse 1s infinite;"></div>` : ''}
             </div>
-            ${!isLast ? `<div style="width:2px;height:20px;background:${lineColor};margin-top:0;"></div>` : ''}
+            <div style="margin-top:4px;font-size:9px;font-weight:${textWeight};color:${textColor};font-family:var(--font-sans);white-space:nowrap;letter-spacing:-0.2px;">${s.label}</div>
           </div>
-          <div style="padding-top:2px;">
-            <div style="font-size:12px;font-weight:${textWeight};color:${textColor};font-family:var(--font-sans);line-height:1.3;">${s.label}</div>
-            ${subInfo}
-          </div>
+          ${!isLast ? `<div style="width:16px;height:2px;background:${lineColor};flex-shrink:0;margin:0 -2px;margin-bottom:16px;"></div>` : ''}
         </div>`;
     }).join('');
 
     const stepBar = `
-      <div style="margin:18px auto 8px;max-width:180px;">
-        ${stepRows}
+      <div style="display:flex;align-items:flex-start;justify-content:center;margin:20px 0 10px;overflow-x:auto;">
+        ${stepItems}
       </div>
-      <div style="text-align:center;margin:10px 0 18px;">
+      <div style="text-align:center;margin:4px 0 18px;">
         <span style="font-size:10px;color:#9CA3AF;font-family:var(--font-mono);">뉴스 양에 따라 10~30초 정도 걸릴 수 있어요</span>
       </div>`;
 
@@ -1309,6 +1315,13 @@ async function genTabSummary(tab) {
     summaryCache[tab] = result;
     localStorage.setItem(cacheKey, JSON.stringify(result));
     localStorage.setItem(cacheTimeKey, Date.now());
+    // "발행 완료" 단계 표시 후 1.5초 대기
+    _aiStepIndex = 6;
+    _aiStepTimers.forEach(t => clearTimeout(t));
+    _aiStepTimers = [];
+    if (_loadingInterval) { clearInterval(_loadingInterval); _loadingInterval = null; }
+    setLoadingMsg(tab, 'done');
+    await new Promise(r => setTimeout(r, 1500));
     stopLoadingMsg();
     showQuizAnswer();
     renderTabSummary(tab, result);

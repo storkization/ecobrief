@@ -1020,7 +1020,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v101';
+const CACHE_VERSION = 'v102';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1440,7 +1440,7 @@ function showQuizAnswer() {
     background:#fff;border-radius:16px;
     padding:24px;max-width:300px;width:85%;
     box-shadow:0 12px 40px rgba(0,0,0,0.2);
-    animation:slideDown 0.3s ease;
+    animation:slideUpBounce 0.35s ease-out;
     font-family:var(--font-sans);text-align:center;
   `;
   card.innerHTML = `
@@ -1721,21 +1721,46 @@ async function fetchInsight(tab, summary, footnotes, label, topNewsItems) {
       // 인사이트 렌더 (renderTabSummary 내부의 insight 렌더 로직 재활용)
       renderInsightSection(tab, j.oneliner);
     } else {
-      console.warn('[INSIGHT] ONELINER 없음 또는 에러');
-      const insightEl = document.getElementById(`${tab}-insight`);
-      if (insightEl) insightEl.innerHTML = '';
-      // oneliner 없이도 캐시 저장
-      localStorage.setItem(cacheKey, JSON.stringify(summaryCache[tab]));
-      localStorage.setItem(cacheTimeKey, Date.now());
+      console.warn('[INSIGHT] ONELINER 없음 또는 에러', res.status, JSON.stringify(j));
+      showInsightRetry(tab, topNewsItems, summary, footnotes, label);
     }
   } catch(err) {
     console.warn('[INSIGHT ERROR]', err.message);
-    const insightEl = document.getElementById(`${tab}-insight`);
-    if (insightEl) insightEl.innerHTML = '';
-    // oneliner 실패해도 summary 캐시는 저장
-    localStorage.setItem(cacheKey, JSON.stringify(summaryCache[tab]));
-    localStorage.setItem(cacheTimeKey, Date.now());
+    showInsightRetry(tab, topNewsItems, summary, footnotes, label);
   }
+}
+
+function showInsightRetry(tab, topNewsItems, summary, footnotes, label) {
+  const insightEl = document.getElementById(`${tab}-insight`);
+  if (insightEl) {
+    insightEl.innerHTML = `
+      <div class="insight-section-label">💡 쓰리포인트 요약 by Shawn</div>
+      <div style="background:#F7FBF8;border-radius:14px;padding:20px;text-align:center;">
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">인사이트를 불러오지 못했어요</div>
+        <button class="retry-btn" onclick="retryInsight('${tab}')" style="font-size:12px;padding:8px 20px;">🔄 다시 시도</button>
+      </div>`;
+  }
+  // 캐시는 저장
+  const cacheKey = `eco_summary_${tab}`;
+  const cacheTimeKey = `eco_summary_time_${tab}`;
+  localStorage.setItem(cacheKey, JSON.stringify(summaryCache[tab]));
+  localStorage.setItem(cacheTimeKey, Date.now());
+}
+
+function retryInsight(tab) {
+  const cached = summaryCache[tab];
+  if (!cached) return;
+  const insightEl = document.getElementById(`${tab}-insight`);
+  if (insightEl) {
+    insightEl.innerHTML = `
+      <div class="insight-section-label">💡 쓰리포인트 요약 by Shawn</div>
+      <div style="background:#F7FBF8;border-radius:14px;padding:20px;text-align:center;">
+        <div class="dots" style="margin-bottom:10px;"><span></span><span></span><span></span></div>
+        <div style="font-size:12px;color:var(--text-muted);">인사이트 분석 중...</div>
+      </div>`;
+  }
+  const label = TAB_LABEL[tab];
+  fetchInsight(tab, cached.summary, cached.footnotes || '', label, cached.topNews || []);
 }
 
 function renderTabSummary(tab, result) {
@@ -1894,16 +1919,19 @@ function renderTabSummary(tab, result) {
       <div style="margin:20px 0 14px;">
         <button onclick="loadColumn('${tab}')"
           id="${tab}-column-btn"
-          style="width:100%;background:#EFF6FF;border:1.5px solid rgba(59,130,246,0.25);border-radius:12px;padding:14px 20px;
-                 display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all 0.2s;">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <span style="font-size:20px;">📰</span>
+          style="width:100%;background:linear-gradient(135deg, #0F172A 0%, #1E3A5F 50%, #1A365D 100%);border:none;border-radius:14px;padding:18px 20px;
+                 display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all 0.2s;
+                 box-shadow:0 4px 20px rgba(15,23,42,0.25);">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;">
+              <span style="font-size:18px;">📰</span>
+            </div>
             <div style="text-align:left;">
-              <div style="font-size:13px;font-weight:800;color:#1D4ED8;">오늘의 ${TAB_LABEL[tab]} 칼럼</div>
-              <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">by Shawn Kim · 탭해서 펼치기</div>
+              <div style="font-size:13px;font-weight:800;color:#fff;letter-spacing:-0.2px;">오늘의 ${TAB_LABEL[tab]} 칼럼</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.55);margin-top:3px;font-family:var(--font-mono);letter-spacing:0.5px;">by Shawn Kim · TAP TO READ</div>
             </div>
           </div>
-          <span style="font-size:16px;color:#3B82F6;transition:transform 0.3s;">▼</span>
+          <span style="font-size:14px;color:rgba(255,255,255,0.5);transition:transform 0.3s;">▼</span>
         </button>
         <div id="${tab}-column-body" style="display:none;"></div>
       </div>`;

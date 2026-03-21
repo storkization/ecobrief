@@ -26,7 +26,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
+        max_tokens: 1200,
         messages: [{
           role: 'user',
           content: `너는 15년 경력의 글로벌 매크로 이코노미스트다. 표면적 뉴스 너머의 구조적 원인, 숨겨진 연쇄 효과, 실전 투자 판단 기준을 제시하는 것이 너의 역할이다.

@@ -1020,7 +1020,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v100';
+const CACHE_VERSION = 'v101';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1704,7 +1704,7 @@ async function fetchInsight(tab, summary, footnotes, label, topNewsItems) {
     const res = await fetch('/api/insight', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ summary, footnotes, label }),
+      body: JSON.stringify({ summary, footnotes, label, headlines: topNewsItems.map(n => n.title) }),
       signal: (() => { const c = new AbortController(); setTimeout(() => c.abort(), 55000); return c.signal; })()
     });
     const j = await res.json();

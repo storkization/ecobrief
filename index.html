@@ -279,22 +279,23 @@
       color:#fff; line-height:1.75;
     }
     .summary-line-wrap {
-      background:#FFFFFF; border-radius:14px; padding:18px 20px;
-      margin-bottom:10px;
-      box-shadow:0 2px 12px rgba(0,0,0,0.05);
+      background:#FFFFFF; border-radius:16px; padding:18px;
+      margin-bottom:8px;
+      box-shadow:0 1px 4px rgba(0,0,0,0.04);
       border:1px solid rgba(0,0,0,0.04);
     }
     .summary-line-wrap:last-child { margin-bottom:0; }
     .summary-line-tag {
-      display:inline-flex; align-items:center; gap:6px;
+      display:inline-flex; align-items:center; gap:7px;
       font-family:var(--font-sans);
       font-size:12px; font-weight:var(--fw-bold);
       padding:5px 14px; border-radius:20px;
-      margin-bottom:12px; letter-spacing:-0.1px;
+      margin-bottom:12px; letter-spacing:0.2px;
+      color:#fff;
     }
-    .tag-issue  { background:#E8F5EE; color:#1A7A45; border:none; box-shadow:0 1px 4px rgba(26,122,69,0.1); }
-    .tag-market { background:#EEF2FF; color:#3730A3; border:none; box-shadow:0 1px 4px rgba(55,48,163,0.08); }
-    .tag-invest { background:#FEF9E7; color:#92600A; border:none; box-shadow:0 1px 4px rgba(146,96,10,0.08); }
+    .tag-issue  { background:#1A7A45; box-shadow:0 2px 8px rgba(26,122,69,0.2); }
+    .tag-market { background:#3730A3; box-shadow:0 2px 8px rgba(55,48,163,0.18); }
+    .tag-invest { background:#B45309; box-shadow:0 2px 8px rgba(180,83,9,0.18); }
     .summary-line-text {
       font-family:var(--font-sans);
       font-size:var(--fs-body); font-weight:var(--fw-medium);
@@ -302,12 +303,19 @@
       letter-spacing:-0.1px;
     }
     .summary-footnote {
-      margin-top:12px; padding:6px 14px;
-      display:flex; align-items:flex-start; gap:6px;
-      background:#F3F4F6;
-      border-radius:12px;
+      margin-top:12px;
+      display:flex; align-items:flex-start; gap:8px;
+    }
+    .summary-footnote-line {
+      width:2px; flex-shrink:0; align-self:stretch;
+      border-radius:1px; margin-top:2px;
+    }
+    .summary-footnote-body {
+      padding:6px 10px;
+      background:#F7F8F7; border-radius:10px;
       font-family:var(--font-sans);
-      font-size:11px; color:#4B5563; line-height:1.5;
+      font-size:11px; color:#6B7280; line-height:1.7;
+      word-break:keep-all; flex:1;
     }
     .front-section {
       background:#FFFFFF; border-radius:14px; padding:20px; margin-bottom:12px;
@@ -1000,7 +1008,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v93';
+const CACHE_VERSION = 'v94';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1690,9 +1698,9 @@ function renderTabSummary(tab, result) {
         .slice(0, 3);
 
     const tags = [
-      { cls:'tag-issue',  wrap:'wrap-issue',  label:'🌿 핵심 이슈' },
-      { cls:'tag-market', wrap:'wrap-market',  label:'📈 시장 흐름' },
-      { cls:'tag-invest', wrap:'wrap-invest',  label:'💡 투자 포인트' },
+      { cls:'tag-issue',  label:'핵심 이슈',   lineColor:'linear-gradient(180deg, #1A7A45, transparent)' },
+      { cls:'tag-market', label:'시장 흐름',   lineColor:'linear-gradient(180deg, #3730A3, transparent)' },
+      { cls:'tag-invest', label:'투자 포인트', lineColor:'linear-gradient(180deg, #B45309, transparent)' },
     ];
 
     // 날짜/시간 + 스케줄 기준 표시
@@ -1771,14 +1779,14 @@ function renderTabSummary(tab, result) {
               if (parts.length >= 2) {
                 const term = parts[0].replace(/^※\s*/, '').trim();
                 const desc = parts.slice(1).join('│').trim();
-                return `<div class="summary-footnote"><span style="font-weight:700;color:#374151;">※</span> <span style="font-weight:600;text-decoration:underline;text-decoration-color:#1A7A45;text-underline-offset:3px;">${term}</span> · ${desc}</div>`;
+                return `<div class="summary-footnote"><div class="summary-footnote-line" style="background:${tags[i] ? tags[i].lineColor : 'linear-gradient(180deg,#999,transparent)'};"></div><div class="summary-footnote-body"><span style="font-weight:700;color:#374151;">※</span> <span style="font-weight:600;color:#374151;">${term}</span> — ${desc}</div></div>`;
               }
-              return `<div class="summary-footnote">${fn}</div>`;
+              return `<div class="summary-footnote"><div class="summary-footnote-line" style="background:${tags[i] ? tags[i].lineColor : 'linear-gradient(180deg,#999,transparent)'};"></div><div class="summary-footnote-body">${fn}</div></div>`;
             }).join('')
           : '';
         return `
-        <div class="summary-line-wrap ${tags[i] ? tags[i].wrap : ''}">
-          <div class="summary-line-tag ${tags[i] ? tags[i].cls : 'tag-issue'}">${tags[i] ? tags[i].label : ''}</div>
+        <div class="summary-line-wrap">
+          <div class="summary-line-tag ${tags[i] ? tags[i].cls : 'tag-issue'}"><span style="width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.45);flex-shrink:0;"></span>${tags[i] ? tags[i].label : ''}</div>
           <div class="summary-line-text">${lineContent}</div>
           ${fnHtml}
         </div>`;

@@ -421,14 +421,12 @@
     @keyframes slideDown{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
     @keyframes slideUpBounce{
-      0%{opacity:0;transform:translateY(30px)}
-      60%{opacity:1;transform:translateY(-6px)}
-      80%{transform:translateY(3px)}
+      0%{opacity:0;transform:translateY(20px)}
       100%{opacity:1;transform:translateY(0)}
     }
     .insight-point-anim {
       opacity:0;
-      animation:slideUpBounce 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+      animation:slideUpBounce 0.45s ease-out forwards;
     }
     .insight-point-anim:nth-child(1){animation-delay:0.15s}
     .insight-point-anim:nth-child(2){animation-delay:0.45s}
@@ -1022,7 +1020,7 @@ const FX_LIST = [
 const TAB_LABEL = { economy:'경제', industry:'산업', global:'국제' };
 
 /* ═══════════ CACHE VERSION ═══════════ */
-const CACHE_VERSION = 'v97';
+const CACHE_VERSION = 'v100';
 (function clearOldCache() {
   const savedVersion = localStorage.getItem('eco_cache_version');
   if (savedVersion !== CACHE_VERSION) {
@@ -1491,15 +1489,15 @@ const DEV_DUMMY = {
 • 코스피는 2.73% 급락하며 2,400선 아래로 내려앉았고, 외국인 순매도가 지속되고 있다.
 줄3: 한국은행의 다음 달 기준금리 동결 가능성이 높으며, 환율 1,500원·유가 110달러 지속 시 7월 금리 인상 카드가 현실화될 수 있다.`,
   oneliner: `배경(상황)Why: 중동 분쟁에서 비롯된 에너지 공급 불안이 국제유가 급등으로 이어지고, 이것이 안전자산 선호 현상으로 달러 강세를 심화시켜 환율 급등을 초래하는 메커니즘입니다.
-※각주: ※ 안전자산 선호 현상 │ 불확실성이 커질 때 투자자들이 위험도가 낮은 달러·미국채 등으로 자산을 이동시키는 현상
+※각주: ※ 안전자산 선호 현상 — 불확실성이 커질 때 투자자들이 위험도가 낮은 달러·미국채 등으로 자산을 이동시키는 현상
 시장 영향So What: 고유가와 고환율의 동시 진행으로 한국 기업의 원가 상승과 수출 경쟁력 약화가 불가피하며, 중앙은행들의 통화정책 효과가 제한되고 있습니다.
 주목할 점Next Move: 향후 환율 1,500원대 안정성과 한국은행 금통위 발언에서 금리 인상 시그널을 포착해야 합니다.
-※각주: ※ 금통위 │ 한국은행 금융통화위원회. 기준금리를 결정하는 최고 의사결정 기구`,
-  footnotes: `줄1: ※ 원달러 환율 │ 미국 달러 1달러를 사기 위해 필요한 원화 금액
-※ 달러 강세 │ 글로벌 시장에서 달러 수요가 높아져 달러 가치가 오르는 현상. 원화 가치는 반대로 하락
-줄2: ※ ECB(유럽중앙은행) │ 유로존 20개국의 통화정책을 담당하는 중앙은행
-※ 인플레이션 │ 물가가 지속적으로 오르는 현상. 화폐 가치가 떨어지는 것과 같은 의미
-줄3: ※ 기준금리(Base Rate) │ 중앙은행이 시중은행에 돈을 빌려줄 때 적용하는 기본 이자율`,
+※각주: ※ 금통위 — 한국은행 금융통화위원회. 기준금리를 결정하는 최고 의사결정 기구`,
+  footnotes: `줄1: ※ 원달러 환율 — 미국 달러 1달러를 사기 위해 필요한 원화 금액
+※ 달러 강세 — 글로벌 시장에서 달러 수요가 높아져 달러 가치가 오르는 현상. 원화 가치는 반대로 하락
+줄2: ※ ECB(유럽중앙은행) — 유로존 20개국의 통화정책을 담당하는 중앙은행
+※ 인플레이션 — 물가가 지속적으로 오르는 현상. 화폐 가치가 떨어지는 것과 같은 의미
+줄3: ※ 기준금리(Base Rate) — 중앙은행이 시중은행에 돈을 빌려줄 때 적용하는 기본 이자율`,
   topNews: [
     { title: '[DEV] 원달러 환율 1,500원 돌파…17년 만의 최고치', source: '한국경제', date: new Date(), link: '#' },
     { title: '[DEV] 국제유가 110달러 돌파…중동 분쟁 격화', source: '매일경제', date: new Date(), link: '#' },
@@ -1757,10 +1755,26 @@ function renderTabSummary(tab, result) {
     const m2 = summaryClean.match(/줄2:\s*(.+?)(?=\s*줄3:|$)/s);
     const m3 = summaryClean.match(/줄3:\s*(.+?)(?=\s*\[|배경\(상황\)|$)/s);
     const lines = [m1, m2, m3].map(m => m ? m[1].trim() : null).filter(Boolean);
-    console.log('[PARSED LINES]', lines);
+    
+    // 본문에 ※ 각주가 인라인으로 붙어있는 경우 분리
+    const inlineFootnotes = { 1: [], 2: [], 3: [] };
+    const cleanedLines = lines.map((line, i) => {
+      const fnIdx = line.indexOf('※');
+      if (fnIdx > 0 && line.slice(fnIdx).includes('—')) {
+        const body = line.slice(0, fnIdx).trim();
+        const fnPart = line.slice(fnIdx);
+        // ※ 여러 개일 수 있음
+        fnPart.split(/(?=※)/).filter(s => s.trim()).forEach(fn => {
+          inlineFootnotes[i + 1].push(fn.trim());
+        });
+        return body;
+      }
+      return line;
+    });
+    console.log('[PARSED LINES]', cleanedLines);
 
     // 패턴 매칭 실패 시 한국어 문장 끝으로 분리 폴백
-    const finalLines = lines.length >= 2 ? lines :
+    const finalLines = cleanedLines.length >= 2 ? cleanedLines :
       summaryClean
         .split(/(?<=다\.|했다\.|이다\.)\s+/)
         .map(l => l.replace(/^줄\d+:\s*/, '').trim())
@@ -1802,13 +1816,17 @@ function renderTabSummary(tab, result) {
         fnMap[lastFnLine].push(line.trim());
       }
     });
+    // 본문에서 분리된 인라인 각주 병합
+    [1,2,3].forEach(i => {
+      if (inlineFootnotes[i]) fnMap[i].push(...inlineFootnotes[i]);
+    });
 
     // 용어 밑줄 헬퍼
     function underlineTerms(text, fns) {
       if (!fns.length) return text;
       let result = text;
       fns.forEach(fn => {
-        const raw = fn.split('│')[0].replace(/^※\s*/, '').trim();
+        const raw = fn.split('—')[0].replace(/^※\s*/, '').trim();
         if (!raw) return;
         // 괄호 앞 핵심어만 추출 (예: "ECB(유럽중앙은행)" → "ECB")
         const core = raw.split(/[(\[（【]/)[0].trim();
@@ -1845,10 +1863,10 @@ function renderTabSummary(tab, result) {
           : underlineTerms(cleaned, fns);
         const fnHtml = fns.length
           ? fns.map(fn => {
-              const parts = fn.split('│');
+              const parts = fn.split('—');
               if (parts.length >= 2) {
                 const term = parts[0].replace(/^※\s*/, '').trim();
-                const desc = parts.slice(1).join('│').trim();
+                const desc = parts.slice(1).join('—').trim();
                 return `<div class="summary-footnote"><div class="summary-footnote-line" style="background:${tags[i] ? tags[i].lineColor : 'linear-gradient(180deg,#999,transparent)'};"></div><div class="summary-footnote-body"><span style="font-weight:700;color:#374151;">※</span> <span style="font-weight:600;color:#374151;">${term}</span> — ${desc}</div></div>`;
               }
               return `<div class="summary-footnote"><div class="summary-footnote-line" style="background:${tags[i] ? tags[i].lineColor : 'linear-gradient(180deg,#999,transparent)'};"></div><div class="summary-footnote-body">${fn}</div></div>`;
@@ -1941,10 +1959,26 @@ function renderInsightSection(tab, oneliner) {
     if (!m) return { text: '', footnotes: [] };
     const block = m[1].trim();
     const lines = block.split('\n');
-    const text = lines.filter(l => !l.trim().startsWith('※각주:')).join(' ').replace(/\s+/g,' ').trim();
-    const footnotes = lines
-      .filter(l => l.trim().startsWith('※각주:'))
-      .map(l => l.replace(/^※각주:\s*/, '').trim());
+    const textParts = [];
+    const footnotes = [];
+    lines.forEach(l => {
+      const trimmed = l.trim();
+      if (trimmed.startsWith('※각주:')) {
+        footnotes.push(trimmed.replace(/^※각주:\s*/, '').trim());
+      } else if (trimmed.startsWith('※') && trimmed.includes('—')) {
+        footnotes.push(trimmed);
+      } else {
+        // 본문 중간에 ※가 붙어있는 경우 분리
+        const fnIdx = l.indexOf('※');
+        if (fnIdx > 0 && l.slice(fnIdx).includes('—')) {
+          textParts.push(l.slice(0, fnIdx).trim());
+          footnotes.push(l.slice(fnIdx).trim());
+        } else {
+          textParts.push(l);
+        }
+      }
+    });
+    const text = textParts.join(' ').replace(/\s+/g,' ').trim();
     return { text, footnotes };
   }
 
@@ -1957,7 +1991,7 @@ function renderInsightSection(tab, oneliner) {
     if (!fns.length) return text;
     let result = text;
     fns.forEach(fn => {
-      const raw = fn.split('│')[0].replace(/^※\s*/, '').trim();
+      const raw = fn.split('—')[0].replace(/^※\s*/, '').trim();
       if (!raw) return;
       const core = raw.split(/[(\[（【]/)[0].trim();
       if (!core) return;
@@ -1983,11 +2017,11 @@ function renderInsightSection(tab, oneliner) {
       ${points.map((p, i) => {
         const fnHtml = p.footnotes.length
           ? p.footnotes.map(fn => {
-              const parts = fn.split('│');
+              const parts = fn.split('—');
               if (parts.length >= 2) {
                 const term = parts[0].replace(/^※\s*/, '').trim();
-                const desc = parts.slice(1).join('│').trim();
-                return `<div style="margin-top:8px;padding:8px 10px;background:rgba(255,255,255,0.1);border-left:2px solid rgba(255,255,255,0.3);border-radius:0 6px 6px 0;font-size:11px;color:rgba(255,255,255,0.85);line-height:1.6;">※ <span style="font-weight:700;text-decoration:underline;text-decoration-color:rgba(255,255,255,0.6);text-underline-offset:3px;">${term}</span> │ ${desc}</div>`;
+                const desc = parts.slice(1).join('—').trim();
+                return `<div style="margin-top:8px;padding:8px 10px;background:rgba(255,255,255,0.1);border-left:2px solid rgba(255,255,255,0.3);border-radius:0 6px 6px 0;font-size:11px;color:rgba(255,255,255,0.85);line-height:1.6;">※ <span style="font-weight:700;text-decoration:underline;text-decoration-color:rgba(255,255,255,0.6);text-underline-offset:3px;">${term}</span> — ${desc}</div>`;
               }
               return `<div style="margin-top:8px;padding:8px 10px;background:rgba(255,255,255,0.1);border-left:2px solid rgba(255,255,255,0.3);border-radius:0 6px 6px 0;font-size:11px;color:rgba(255,255,255,0.85);line-height:1.6;">${fn}</div>`;
             }).join('')
